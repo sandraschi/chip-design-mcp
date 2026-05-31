@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-05-31
+
+First public GitHub release: MCP bundle (`.mcpb`), webapp on :11023, ChipLab workflows, automated Windows EDA bootstrap, and fleet lint stack (Ruff, Biome, ty).
+
 ### Fixed
 - **start.ps1** / **justfile** `bootstrap`: `uv sync --all-extras` only (`--extra eda` cannot combine with `--all-extras` in current uv).
 - **install-eda.ps1**: phased A/B/C progress with timestamps; WSL apt split into probe/update/install/verify (no `-qq`); `wsl -u root` to avoid sudo hang; volare/docker lines streamed.
@@ -34,10 +38,10 @@
 - `depot_list` crash; `pr_status.docker_available`; yosys stat parse; `verify_timing` sky130 liberty fallback.
 - Unicode/em dash removed from `.ps1` per fleet `unicode_safety` checker.
 
-## [0.1.0] — 2026-05-27
+## [0.0.1] — 2026-05-27
 
 ### Added
-- Initial release with 28+ MCP tools across 6 domains
+- Initial scaffold with 28+ MCP tools across 6 domains
 - Yosys synthesis: status, read_verilog, run, stats, show, export_netlist
 - cocotb simulation: list_tests, run_testbench, read_waveform, check_coverage
 - OpenLane place & route: status, create_design, configure, run_flow, read_reports, export_gds, export_lef

@@ -1,7 +1,7 @@
 [project]
 name = "chip-design-mcp"
 version = "0.1.0"
-description = "Chip Design MCP server — open-source ASIC/VLSI design automation via MCP tools and REST API"
+description = "MCP server and React webapp for open-source chip design: Verilog hardware description, Yosys synthesis, simulation, optional OpenLane layout (GDSII). REST :11022, dashboard :11023."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

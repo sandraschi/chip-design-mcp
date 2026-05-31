@@ -1,58 +1,87 @@
-{
-  "manifest_version": "0.2",
-  "name": "chip-design-mcp",
-  "version": "0.1.0",
-  "description": "Open-source RTL-to-GDSII ASIC automation via FastMCP 3.2 — Yosys, cocotb/iverilog, OpenLane, Magic/netgen/OpenSTA. REST + MCP HTTP on :11022, stdio via python -m chip_design_mcp.server.",
-  "author": {
-    "name": "Sandra Schipal",
-    "email": "sandra@theagenticmines.at"
-  },
-  "repository": "https://github.com/sandraschi/chip-design-mcp",
-  "icon": "assets/icon.png",
-  "server": {
-    "type": "python",
-    "entry_point": "src/chip_design_mcp/server.py",
-    "mcp_config": {
-      "command": "uv",
-      "args": ["run", "--project", "${__dirname}", "python", "-m", "chip_design_mcp.server", "--mode", "stdio"],
-      "env": {
-        "PYTHONPATH": "${__dirname}/src",
-        "PYTHONUNBUFFERED": "1",
-        "CHIP_DESIGN_MCP_WORK_DIR": "${CHIP_DESIGN_MCP_WORK_DIR}"
-      }
-    }
-  },
-  "env": [
-    {
-      "name": "CHIP_DESIGN_MCP_WORK_DIR",
-      "description": "Workspace for uploads, outputs, and OpenLane designs (default: %TEMP%\\chip_design_mcp_work)",
-      "required": false,
-      "default": ""
-    },
-    {
-      "name": "PDK_ROOT",
-      "description": "Volare-managed PDK root (sky130, gf180mcu, ihp-sg13g2)",
-      "required": false,
-      "default": ""
-    },
-    {
-      "name": "CHIP_DESIGN_MCP_PREFAB_APPS",
-      "description": "Register Prefab in-chat cards (1=on, 0=off for headless CI)",
-      "required": false,
-      "default": "1"
-    }
-  ],
-  "tools": [
-    { "name": "chip_status", "description": "EDA tool availability and server status" },
-    { "name": "chip_pipeline_stages", "description": "RTL-to-GDSII pipeline stage catalog" },
-    { "name": "chip_available_pdks", "description": "Supported open PDKs and install status" },
-    { "name": "chip_agentic", "description": "Sampling-assisted flow planning and Q&A" },
-    { "name": "syn_status", "description": "Yosys availability" },
-    { "name": "syn_run", "description": "Run Yosys synthesis on uploaded RTL" },
-    { "name": "sim_run_testbench", "description": "Run cocotb + iverilog simulation" },
-    { "name": "pr_run_flow", "description": "Run OpenLane place-and-route" },
-    { "name": "verify_drc", "description": "Magic DRC check" },
-    { "name": "depot_init", "description": "Scaffold a new chip design project" },
-    { "name": "show_chip_status_card", "description": "Prefab status card (when prefab enabled)" }
-  ]
-}
+{
+  "manifest_version": "0.2",
+  "name": "chip-design-mcp",
+  "version": "0.1.0",
+  "description": "MCP server and React webapp for open-source chip design: write hardware in Verilog, run simulation and synthesis, optional place-and-route to GDSII layout files. Yosys, sky130 PDK, OpenLane (Docker). MCP/REST :11022, dashboard :11023.",
+  "long_description": "Chip Design MCP connects AI agents and humans to real FOSS EDA tools—not a toy demo. Use natural language or MCP tools to scaffold projects, run Yosys synthesis on Verilog (RTL = register-transfer level, the usual way digital chips are described), simulate with cocotb and Icarus Verilog, and optionally run OpenLane in Docker to produce GDSII (the standard file format fabs use for chip geometry). Includes ChipLab guided workflows, a React dashboard with Help docs, Prefab status cards, and honest reporting when binaries or PDKs are missing. Windows launcher can bootstrap Docker, WSL tools, and volare sky130.",
+  "author": {
+    "name": "Sandra Schipal",
+    "email": "sandra@theagenticmines.at"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sandraschi/chip-design-mcp"
+  },
+  "homepage": "https://github.com/sandraschi/chip-design-mcp",
+  "documentation": "https://github.com/sandraschi/chip-design-mcp/blob/master/README.md",
+  "support": "https://github.com/sandraschi/chip-design-mcp/issues",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "asic",
+    "vlsi",
+    "verilog",
+    "rtl",
+    "gdsii",
+    "yosys",
+    "openlane",
+    "sky130",
+    "cocotb",
+    "eda",
+    "webapp",
+    "fastmcp"
+  ],
+  "icon": "assets/icon.png",
+  "server": {
+    "type": "python",
+    "entry_point": "src/chip_design_mcp/server.py",
+    "mcp_config": {
+      "command": "uv",
+      "args": ["run", "--project", "${__dirname}", "python", "-m", "chip_design_mcp.server", "--mode", "stdio"],
+      "env": {
+        "PYTHONPATH": "${__dirname}/src",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  },
+  "user_config": {
+    "CHIP_DESIGN_MCP_WORK_DIR": {
+      "type": "directory",
+      "title": "Work directory",
+      "description": "Workspace for uploads, outputs, and OpenLane designs (default: system temp chip_design_mcp_work)",
+      "required": false,
+      "default": ""
+    },
+    "PDK_ROOT": {
+      "type": "directory",
+      "title": "PDK root",
+      "description": "Volare-managed process design kit root (sky130, gf180mcu, ihp-sg13g2)",
+      "required": false,
+      "default": ""
+    },
+    "CHIP_DESIGN_MCP_PREFAB_APPS": {
+      "type": "string",
+      "title": "Prefab cards",
+      "description": "Register Prefab in-chat status cards (1=on, 0=off for headless)",
+      "required": false,
+      "default": "1"
+    }
+  },
+  "tools": [
+    { "name": "chip_status", "description": "EDA tool availability and server status" },
+    { "name": "chip_pipeline_stages", "description": "Chip design pipeline stage catalog (Verilog to layout)" },
+    { "name": "chip_available_pdks", "description": "Supported open PDKs and install status" },
+    { "name": "chip_agentic", "description": "Sampling-assisted flow planning and Q&A" },
+    { "name": "syn_status", "description": "Yosys availability" },
+    { "name": "syn_run", "description": "Run Yosys synthesis on uploaded Verilog" },
+    { "name": "sim_run_testbench", "description": "Run cocotb + iverilog simulation" },
+    { "name": "pr_run_flow", "description": "Run OpenLane place-and-route" },
+    { "name": "verify_drc", "description": "Magic DRC check" },
+    { "name": "depot_init", "description": "Scaffold a new chip design project" },
+    { "name": "show_chip_status_card", "description": "Prefab status card (when prefab enabled)" }
+  ],
+  "compatibility": {
+    "platforms": ["win32", "darwin", "linux"]
+  }
+}
+

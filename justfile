@@ -73,7 +73,8 @@ install-mcp client="print":
 mcpb-pack:
     $ver = (Get-Content pyproject.toml | Select-String '^version = "(.*)"' | ForEach-Object { $_.Matches.Groups[1].Value })
     $null = New-Item -ItemType Directory -Path dist -Force
-    Compress-Archive -Path manifest.json, assets, src, pyproject.toml -DestinationPath "dist/chip-design-mcp-v$ver.mcpb" -CompressionLevel Optimal -Force
+    npx --yes @anthropic-ai/mcpb@latest validate .
+    npx --yes @anthropic-ai/mcpb@latest pack . "dist/chip-design-mcp-v$ver.mcpb"
     Write-Host "Created dist/chip-design-mcp-v$ver.mcpb" -ForegroundColor Green
 
 # -- Testing ------------------------------------------------------------------
