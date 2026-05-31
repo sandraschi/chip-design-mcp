@@ -77,5 +77,6 @@ uv run pytest tests/ -q # smoke + unit tests (no EDA tools required)
 | `webapp/src/pages/HelpPage.tsx` | Central Help tabs; domain pages use Overview + Help |
 | `webapp/` | React 19 + Vite 6 + Tailwind dashboard |
 | `webapp/start.ps1` + `start.bat` | Canonical naked-PC launcher (11022/11023); root `start.bat` delegates |
+| Git | https://github.com/sandraschi/chip-design-mcp — checkpoint before batch edits ([GIT_REPOSITORY_SAFETY.md](../mcp-central-docs/standards/GIT_REPOSITORY_SAFETY.md)) |
 | `justfile` | Lifecycle recipes |
 | `llms.txt` / `llms-full.txt` | LLM context (short / full) |

@@ -130,6 +130,16 @@ if ($env:SKIP_SYNC -eq "1") {
 }
 
 Write-Host "  Smoke-testing import ..." -ForegroundColor DarkGray
+$serverPy = Join-Path $RepoRoot 'src\chip_design_mcp\server.py'
+if (-not (Test-Path -LiteralPath $serverPy)) {
+    Write-Host "ERROR: missing $serverPy" -ForegroundColor Red
+    exit 1
+}
+$serverLen = (Get-Item -LiteralPath $serverPy).Length
+if ($serverLen -lt 1024) {
+    Write-Host "ERROR: server.py truncated ($serverLen bytes). Restore from git: git checkout -- src/chip_design_mcp/server.py" -ForegroundColor Red
+    exit 1
+}
 & $uvExe run --project $RepoRoot python -c "import chip_design_mcp.server; print('  [ok] Import OK')"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: import check failed -- see output above." -ForegroundColor Red
