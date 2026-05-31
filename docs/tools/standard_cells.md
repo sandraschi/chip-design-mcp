@@ -5,7 +5,7 @@ Browse **sky130**, **gf180mcu**, and **ihp-sg13g2** standard-cell metadata when 
 ## Prerequisites
 
 ```powershell
-volare enable --pdk sky130 0bbdd5
+volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095
 ```
 
 `chip_available_pdks` lists what is present on disk.

@@ -16,6 +16,13 @@ Each ASIC flow domain has a dedicated guide for agents and humans.
 
 Full catalog: [TOOLS.md](../TOOLS.md).
 
+**Install:** [INSTALL.md](../../INSTALL.md) (automated Windows). **PRD:** [PRD.md](../PRD.md).
+
+| Start here (ethos + warnings) | [DREAMING_IN_SILICON.md](../DREAMING_IN_SILICON.md) |
+| FOSS design guides | Path |
+| Tools to **create** RTL + PDK/FPGA stack | [FOSS_EDA_ECOSYSTEM.md](../FOSS_EDA_ECOSYSTEM.md) |
+| **Download** interesting RTL (SNN, CPUs, …) | [FOSS_RTL_SOURCES.md](../FOSS_RTL_SOURCES.md) |
+
 **Silicon:** [FABRICATION_AND_FABS.md](../FABRICATION_AND_FABS.md) — where and how to tape out (Tiny Tapeout, ChipFoundry, academic & commercial MPW).
 
 Webapp: open **Help** in the dashboard for the same content in tabbed form (`GET /api/v1/help/{slug}`).

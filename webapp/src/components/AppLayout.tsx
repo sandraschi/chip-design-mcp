@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
 import {
   Activity,
   BookOpen,
@@ -8,18 +6,22 @@ import {
   Cpu,
   FlaskConical,
   Grid3x3,
-  Map,
+  Map as MapIcon,
   Microchip,
+  TestTube2,
 } from 'lucide-react';
+import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: Activity },
   { to: '/synthesis', label: 'Synthesis', icon: Cpu },
   { to: '/simulation', label: 'Simulation', icon: FlaskConical },
-  { to: '/place-route', label: 'Place & Route', icon: Map },
+  { to: '/place-route', label: 'Place & Route', icon: MapIcon },
   { to: '/verification', label: 'Verification', icon: CircuitBoard },
   { to: '/cells', label: 'Standard Cells', icon: Grid3x3 },
   { to: '/depot', label: 'Depot', icon: Boxes },
+  { to: '/chiplab', label: 'ChipLab', icon: TestTube2 },
   { to: '/help', label: 'Help', icon: BookOpen },
   { to: '/status', label: 'Status', icon: Microchip },
 ];

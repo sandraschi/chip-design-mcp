@@ -1,5 +1,7 @@
 # Chip Design MCP — Setup Guide
 
+**Supplement to [INSTALL.md](../INSTALL.md).** Product scope: [PRD.md](PRD.md).
+
 ## Automated install (Windows)
 
 **Default:** run `.\start.bat` from the repo root. See [INSTALL.md](../INSTALL.md) — step 3 runs `scripts/install-eda.ps1` (Docker OpenLane, WSL apt packages, volare sky130). No manual steps for naked-PC users.
@@ -80,7 +82,7 @@ can't produce manufacturable layouts.
 pip install volare
 
 # Enable SkyWater 130nm (downloads ~500 MB)
-volare enable --pdk sky130 0bbdd5
+volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095
 
 # Verify
 echo $PDK_ROOT     # Should show e.g. /home/user/.volare
@@ -90,7 +92,7 @@ ls $PDK_ROOT/sky130A/  # Should show libs.ref/, libs.tech/, soic/
 ls $PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/
 ```
 > **Note**: `PDK_ROOT` is set automatically by volare. If not set, add
-> `export PDK_ROOT=$(volare which)` to your `~/.bashrc` or `~/.zshrc`.
+> `export PDK_ROOT=$(volare path)` to your `~/.bashrc` or `~/.zshrc`.
 
 #### Install GF180MCU PDK (Alternative - GlobalFoundries 180nm)
 

@@ -363,7 +363,13 @@ syn_run(top_module="{project_name}")
 """
         with open(os.path.join(project_dir, "README.md"), "w", encoding="utf-8") as f:
             f.write(readme)
-        files = [rtl_path, tb_path, os.path.join(project_dir, "Makefile"), os.path.join(project_dir, "config.json"), os.path.join(project_dir, "README.md")]
+        files = [
+            rtl_path,
+            tb_path,
+            os.path.join(project_dir, "Makefile"),
+            os.path.join(project_dir, "config.json"),
+            os.path.join(project_dir, "README.md"),
+        ]
         return {
             "success": True,
             "message": f"Project '{project_name}' created with template '{template}'",
@@ -381,7 +387,9 @@ syn_run(top_module="{project_name}")
 
     @mcp.tool(annotations=_READ_ONLY, version="0.1.0")
     async def depot_list(
-        directory: Annotated[str, Field(description="Directory to list: designs, uploads, outputs, or a project name.")] = "designs",
+        directory: Annotated[
+            str, Field(description="Directory to list: designs, uploads, outputs, or a project name.")
+        ] = "designs",
     ) -> dict:
         """List files and projects in the chip design depot.
 
@@ -422,6 +430,7 @@ syn_run(top_module="{project_name}")
         ## Examples
         await depot_status()
         """
+
         def scan(root: str) -> tuple[int, int]:
             if not os.path.isdir(root):
                 return 0, 0
@@ -439,7 +448,11 @@ syn_run(top_module="{project_name}")
         d_files, d_size = scan(designs_dir)
         u_files, u_size = scan(upload_dir)
         o_files, o_size = scan(output_dir)
-        designs_count = len([n for n in os.listdir(designs_dir) if os.path.isdir(os.path.join(designs_dir, n))]) if os.path.isdir(designs_dir) else 0
+        designs_count = (
+            len([n for n in os.listdir(designs_dir) if os.path.isdir(os.path.join(designs_dir, n))])
+            if os.path.isdir(designs_dir)
+            else 0
+        )
         return {
             "success": True,
             "data": {

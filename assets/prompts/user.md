@@ -73,7 +73,7 @@ chip-design-mcp orchestrates external tools. Install what you need by flow stage
 
 ```powershell
 pip install volare
-volare enable --pdk sky130 0bbdd5
+volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095
 ```
 
 Set `PDK_ROOT` in your environment (volare usually configures this). Restart the MCP server after installing PDK so `chip_status` reflects `pdk_installed: true`.
@@ -331,7 +331,7 @@ No OpenLane rerun required. Magic must be on PATH.
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | `Yosys not found` | Not on PATH | Install Yosys; restart server |
-| `PDK_ROOT not set` | volare not run | `volare enable --pdk sky130 0bbdd5` |
+| `PDK_ROOT not set` | volare not run | `volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095` |
 | OpenLane Docker fails | Docker stopped | Start Docker Desktop |
 | Port 11022 in use | Zombie process | Re-run `start.bat` (clears ports) or kill PID |
 | iverilog syntax error | SV unsupported | Use Verilog-2001; try `extra_args="-g2012"` |
@@ -596,7 +596,7 @@ This walkthrough ties every stage together with realistic timing expectations fo
 
 **Hour 0 — Install:** Run `start.bat`. Wait for winget/uv/npm if naked PC. Browser opens to dashboard. Call `chip_status`—likely yosys and iverilog missing initially.
 
-**Hour 1 — EDA setup:** Install oss-cad-suite or WSL Ubuntu with `apt install yosys iverilog magic netgen`. Install Docker Desktop, pull OpenLane image. `pip install volare cocotb`. `volare enable --pdk sky130 0bbdd5`. Restart MCP server. `chip_status` now shows green for core tools.
+**Hour 1 — EDA setup:** Install oss-cad-suite or WSL Ubuntu with `apt install yosys iverilog magic netgen`. Install Docker Desktop, pull OpenLane image. `pip install volare cocotb`. `volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095`. Restart MCP server. `chip_status` now shows green for core tools.
 
 **Hour 2 — Project:** `depot_init(project_name="tt_um_example", template="counter")`. Edit RTL if needed—keep under Tiny Tapeout area guidelines (consult current TT docs for exact µm² limits). Run `make sim` in project dir—fix any cocotb assertion failures.
 
@@ -656,7 +656,7 @@ Many designers run EDA natively on Ubuntu/WSL:
 ```bash
 sudo apt install yosys iverilog magic netgen
 pip install volare cocotb
-volare enable --pdk sky130 0bbdd5
+volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095
 docker pull ghcr.io/the-openroad-project/openlane:latest
 cd chip-design-mcp && uv sync --all-extras && just serve
 ```

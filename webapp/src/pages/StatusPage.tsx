@@ -5,7 +5,10 @@ export default function StatusPage() {
   const [status, setStatus] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
-    const load = () => apiGet('/api/v1/status').then(setStatus).catch(() => {});
+    const load = () =>
+      apiGet('/api/v1/status')
+        .then(setStatus)
+        .catch(() => {});
     load();
     const interval = setInterval(load, 3000);
     return () => clearInterval(interval);

@@ -83,6 +83,9 @@ def test_help_index(client: TestClient):
         "system",
         "install",
         "pdk",
+        "foss-eda-ecosystem",
+        "foss-rtl-sources",
+        "dreaming-in-silicon",
     ],
 )
 def test_help_slug(client: TestClient, slug: str):
@@ -91,6 +94,37 @@ def test_help_slug(client: TestClient, slug: str):
     body = r.json()
     assert body["slug"] == slug
     assert len(body["content"]) > 50
+    assert body["markdown"] == body["content"]
+
+
+def test_chiplab_presets(client: TestClient):
+    r = client.get("/api/v1/chiplab/presets")
+    assert r.status_code == 200
+    body = r.json()
+    ids = [p["id"] for p in body["presets"]]
+    assert "rtl_validate" in ids
+    assert "full_tapeout" in ids
+
+
+def test_chiplab_workflow_bringup(client: TestClient):
+    r = client.post(
+        "/api/v1/chiplab/workflows",
+        json={
+            "preset_id": "project_bringup",
+            "params": {"project_name": "pytest_lab", "template": "empty"},
+            "auto_start": False,
+        },
+    )
+    assert r.status_code == 200
+    wf = r.json()
+    assert wf["preset_id"] == "project_bringup"
+    assert wf["params"]["project_name"] == "pytest_lab"
+    assert wf["status"] == "queued"
+    assert len(wf["steps"]) == 1
+
+    g = client.get(f"/api/v1/chiplab/workflows/{wf['id']}")
+    assert g.status_code == 200
+    assert g.json()["id"] == wf["id"]
 
 
 def test_chip_status_control(client: TestClient):
@@ -111,7 +145,6 @@ def test_depot_init(client: TestClient, tmp_path, monkeypatch):
     srv.DESIGNS_DIR = str(tmp_path / "designs")
     srv._state["work_dir"] = srv.WORK_DIR
     for d in (srv.UPLOAD_DIR, srv.OUTPUT_DIR, srv.DESIGNS_DIR):
-        d_path = __import__("os").path
         __import__("os").makedirs(d, exist_ok=True)
 
     r = client.post(

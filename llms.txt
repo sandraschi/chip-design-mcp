@@ -2,7 +2,9 @@
 
 Full corpus: **llms-full.txt**. Fleet standards: **mcp-central-docs** (`SOTA_REQUIREMENTS.md`, `chip_design_cad_sota.md`).
 
-Chip Design MCP is a FastMCP 3.2 server that provides AI-driven open-source ASIC/VLSI design automation. It exposes 28+ MCP tools across 6 domains, Prefab cards, prompts/resources, bundled **skill://chip-design-expert**, and **chip_agentic** sampling — covering the full RTL-to-GDSII pipeline.
+Chip Design MCP is a FastMCP 3.2 server for open-source ASIC/VLSI orchestration — framed as a **superyacht magazine for silicon** (read docs/DREAMING_IN_SILICON.md): educate what COULD be done with FOSS sky130 flows, run real tools when asked, warn users (Docker, heuristics, no foundry guarantee). KiCad/kicad-mcp is for PCBs; this repo is RTL→GDSII. It exposes 32+ MCP tools across 6 domains, Prefab cards, prompts/resources, bundled **skill://chip-design-expert**, and **chip_agentic** sampling — covering the full RTL-to-GDSII pipeline.
+
+**Install (Windows):** clone https://github.com/sandraschi/chip-design-mcp and run `.\start.bat` — winget uv/Node, `uv sync --extra eda`, automated Docker+WSL+volare (see **INSTALL.md**). No manual apt steps for naked-PC users.
 
 Discovery: `GET http://127.0.0.1:11022/.well-known/mcp/manifest.json` (stdio + HTTP). Claude Desktop: root **manifest.json** + `just mcpb-pack`.
 
@@ -18,8 +20,14 @@ Discovery: `GET http://127.0.0.1:11022/.well-known/mcp/manifest.json` (stdio + H
 | `src/chip_design_mcp/tools/standard_cells.py` | 4 PDK tools: list, info, search, stats |
 | `src/chip_design_mcp/tools/depot.py` | 3 project tools: init, list, status + template generators |
 | `webapp/` | React 19 + Vite 6 + Tailwind + TypeScript dashboard |
-| `start.ps1` | Fleet-standard startup script |
-| `justfile` | Lifecycle: bootstrap, serve, dev, lint, test, e2e, fix, yosys-check, openlane-check, cocotb-check, flow-test |
+| `webapp/start.ps1` | Naked-PC launcher (6 steps, automated EDA) |
+| `scripts/install-eda.ps1` | Docker OpenLane + WSL yosys + volare sky130 |
+| `docs/PRD.md` | Product requirements |
+| `docs/FOSS_EDA_ECOSYSTEM.md` | FOSS CAD: Chisel, LiteX, Yosys, nextpnr, LibreLane, OpenRAM, KiCad vs ASIC |
+| `docs/DREAMING_IN_SILICON.md` | Editorial — ethos, warnings, KiCad epilogue |
+| `docs/FOSS_RTL_SOURCES.md` | External RTL: neuraedge, OpenSpike, PicoRV32, HighTide, Tiny Tapeout |
+| `INSTALL.md` | Canonical install guide |
+| `justfile` | bootstrap, serve, install-eda, yosys-check, docker-check, pdk-check |
 
 ## Architecture
 

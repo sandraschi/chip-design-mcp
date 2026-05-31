@@ -1,6 +1,6 @@
 # Chip Design MCP — Extension Plan
 
-Status as of 2026-05-27 release (v0.1.0) + 2026-05-30 alignment pass.
+Status as of 2026-05-31 (v0.1.0 + unreleased). Product requirements: [PRD.md](PRD.md).
 Timelines are AI-assisted-with-review (days, not weeks). Effort is calendar
 days for one operator driving an agent, including test + review.
 
@@ -38,8 +38,13 @@ has no visual, violation counts are heuristic). This plan closes both gaps.
 | Register in `FLEET_INDEX.md` (ports already reserved in WEBAPP_PORTS.md) | open — needs your OK | 0.25 d |
 | **Prefab UI** for list/status/stats tools — the fleet mandate. 6 `show_*_card` App tools in `tools/prefab.py` wrapping `chip_status`, `pr_status`(via status), depot/cells stats + lists, pipeline, pdks. | **added 05-30** | — |
 | `GET /api/capabilities` introspection endpoint (AGENT_PROTOCOLS mandate) | **added 05-30** | — |
-| Naked-PC `start.ps1` — `Require-Command` winget bootstrap, vite guard, import smoke-test, health-timeout error (reference: `aiwatcher-mcp`) | **added 05-30** | — |
+| Naked-PC `webapp/start.ps1` — winget bootstrap, vite guard, import + **server.py size** smoke, health-timeout | **added 05-30/31** | — |
+| **Automated EDA** — `scripts/install-eda.ps1` (Docker/OpenLane, WSL apt, volare sky130, `bin/` shims); `uv sync --extra eda` | **added 05-31** | — |
+| Git + GitHub remote + fleet GIT_REPOSITORY_SAFETY | **added 05-31** | — |
+| `docs/PRD.md`, INSTALL/README/CHANGELOG doc pass | **added 05-31** | — |
+| `docs/DREAMING_IN_SILICON.md` + magazine README tone + FOSS catalogs | **added 05-31** | — |
 | `mcpb pack` validation (`mcpb validate`, `mcpb pack`) — confirm packaging | open | 0.5 d |
+| `install-eda.sh` for Linux/macOS (parity with Windows script) | open | 1 d |
 
 ## Phase 2 — Webapp to SOTA (≈3–4 days) — mostly done
 
@@ -51,6 +56,8 @@ has no visual, violation counts are heuristic). This plan closes both gaps.
 | **Apps Hub** — live fleet discovery (`/api/v1/fleet` bounded port scan 10700–11100) | **added 05-30** |
 | **LLM Chat** — Glom-On auto-detect Ollama 11434 / LM Studio 1234 via backend proxy (`/api/v1/llm/status`, `/api/v1/llm/chat`), GPU-opportunity fallback | **added 05-30** |
 | Global logger modal + help modal + toasts | open |
+| **ChipLab** (`/chiplab`) — workflow presets, step supervision, assess, LLM assist | **added 05-31** |
+| **Biome** — `webapp/biome.json`, `bun run lint` / `format`, CI + `just lint`/`fix` | **added 05-31** |
 
 ## Phase 3 — Functional depth (≈5–7 days)
 

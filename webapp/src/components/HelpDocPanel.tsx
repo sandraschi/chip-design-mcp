@@ -2,6 +2,13 @@ import { useEffect, useState } from 'react';
 import { apiGet } from '../lib/api';
 import MarkdownView from './MarkdownView';
 
+interface HelpDocApi {
+  slug: string;
+  title: string;
+  content?: string;
+  markdown?: string;
+}
+
 interface HelpDoc {
   slug: string;
   title: string;
@@ -16,9 +23,15 @@ export default function HelpDocPanel({ slug }: { slug: string }) {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    apiGet<HelpDoc>(`/api/v1/help/${slug}`)
-      .then(setDoc)
-      .catch((e) => setError(e.message))
+    apiGet<HelpDocApi>(`/api/v1/help/${slug}`)
+      .then((raw) => {
+        const markdown = raw.markdown ?? raw.content ?? '';
+        if (!markdown) {
+          throw new Error('Help response missing markdown/content');
+        }
+        setDoc({ slug: raw.slug, title: raw.title, markdown });
+      })
+      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
   }, [slug]);
 

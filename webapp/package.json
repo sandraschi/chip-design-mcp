@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite --port 11023",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "biome check src/",
+    "format": "biome check --write src/"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -15,6 +17,7 @@
     "react-router-dom": "^7.0.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@playwright/test": "^1.60.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

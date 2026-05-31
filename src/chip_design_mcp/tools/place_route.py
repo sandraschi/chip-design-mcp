@@ -122,7 +122,11 @@ def register_place_route_tools(
         design_dir = os.path.join(designs_dir, design_name)
         config_path = os.path.join(design_dir, "config.json")
         if not os.path.isfile(config_path):
-            return {"success": False, "message": f"Design not found: {design_name}. Use pr_create_design first.", "data": None}
+            return {
+                "success": False,
+                "message": f"Design not found: {design_name}. Use pr_create_design first.",
+                "data": None,
+            }
         with open(config_path, encoding="utf-8") as f:
             config = json.load(f)
         config["CLOCK_PERIOD"] = clock_period
@@ -164,7 +168,11 @@ def register_place_route_tools(
         design_dir = os.path.join(designs_dir, design_name)
         config_path = os.path.join(design_dir, "config.json")
         if not os.path.isfile(config_path):
-            return {"success": False, "message": f"Design not found: {design_name}. Use pr_create_design first.", "data": None}
+            return {
+                "success": False,
+                "message": f"Design not found: {design_name}. Use pr_create_design first.",
+                "data": None,
+            }
         if not state.get("tools", {}).get("openlane") and not state.get("tools", {}).get("docker"):
             return {
                 "success": False,
@@ -285,7 +293,11 @@ def register_place_route_tools(
                 if gds_src:
                     break
         if not gds_src:
-            return {"success": False, "message": "GDS file not found. Flow may not have completed to signoff.", "data": None}
+            return {
+                "success": False,
+                "message": "GDS file not found. Flow may not have completed to signoff.",
+                "data": None,
+            }
         dest = os.path.join(output_dir, f"{design_name}.gds")
         shutil.copy2(gds_src, dest)
         return {

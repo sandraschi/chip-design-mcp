@@ -63,7 +63,7 @@ def _classify_cell(name: str) -> str:
 
 def _drive_strength(name: str) -> str:
     parts = name.rsplit("_", 1)
-    if len(parts) == 2 and parts[1].replace("X", "x").replace("1", "").isdigit() or parts[1] in ("1", "2", "4", "8"):
+    if (len(parts) == 2 and parts[1].replace("X", "x").replace("1", "").isdigit()) or parts[1] in ("1", "2", "4", "8"):
         return parts[1]
     m = re.search(r"_(\d+|X\d+)$", name)
     return m.group(1) if m else "?"
@@ -105,7 +105,7 @@ def register_standard_cells_tools(mcp, state: dict):
         if not os.environ.get("PDK_ROOT"):
             return {
                 "success": False,
-                "message": "PDK_ROOT not set. Set PDK_ROOT to ~/.volare or install via volare.\nInstall PDKs: pip install volare && volare enable --pdk sky130 0bbdd5",
+                "message": "PDK_ROOT not set. Set PDK_ROOT to ~/.volare or install via volare.\nInstall PDKs: pip install volare && volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095",
                 "data": None,
             }
         files = _list_cell_files(pdk)
@@ -149,7 +149,9 @@ def register_standard_cells_tools(mcp, state: dict):
     async def cells_search(
         function: Annotated[
             Literal["buffer", "inverter", "and", "or", "nand", "nor", "xor", "mux", "dff", "latch", "adder", "all"],
-            Field(description="Function to search: buffer, inverter, and, or, nand, nor, xor, mux, dff, latch, adder, all."),
+            Field(
+                description="Function to search: buffer, inverter, and, or, nand, nor, xor, mux, dff, latch, adder, all."
+            ),
         ] = "all",
         pdk: Annotated[str, Field(description="PDK name.")] = "sky130",
         limit: Annotated[int, Field(description="Max results.")] = 30,

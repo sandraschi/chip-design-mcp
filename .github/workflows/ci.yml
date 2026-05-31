@@ -36,10 +36,13 @@ jobs:
         run: bun install --frozen-lockfile
         working-directory: webapp
 
+      - name: Biome lint (webapp)
+        run: bun run lint
+        working-directory: webapp
+
       - name: Webapp TypeScript check
         run: bunx tsc --noEmit
         working-directory: webapp
 
-      - name: ty typecheck (beta, non-blocking)
-        continue-on-error: true
+      - name: ty typecheck
         run: uv run ty check src

@@ -11,6 +11,12 @@ Cross-cutting MCP tools and agentic assist.
 | `chip_available_pdks` | sky130 / gf180 / IHP install state |
 | `chip_agentic` | Sampling: `status_summary`, `flow_plan`, `natural_query` |
 
+## Installation
+
+Windows: automated in `start.bat` step 3 (`scripts/install-eda.ps1`). See [INSTALL.md](../../INSTALL.md).
+
+Manual checks: `just yosys-check`, `just docker-check`, `just pdk-check`.
+
 ## When to call first
 
 Always start sessions with `chip_status` before long OpenLane or synthesis runs.

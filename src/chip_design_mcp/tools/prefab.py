@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import Any
 
 from prefab_ui.app import PrefabApp
 from prefab_ui.components import Badge, Card, CardContent, CardHeader, CardTitle, Muted, Text
@@ -49,22 +50,22 @@ def register_prefab_tools(mcp, all_tools: dict) -> dict:
         await show_chip_status_card()
         """
         fn = all_tools.get("chip_status")
-        data = await fn() if fn else {"success": False}
-        tools = data.get("tools") or {}
+        data: dict[str, Any] = await fn() if fn else {"success": False}
+        tools: dict[str, bool] = dict(data.get("tools") or {})
         ready = sum(1 for v in tools.values() if v)
         total = len(tools)
-        with Card(className="max-w-lg"):
+        with Card(css_class="max-w-lg"):
             with CardHeader():
                 CardTitle("Chip Design MCP - Status")
             with CardContent():
-                Text(f"{ready}/{total} EDA tools available", className="text-sm text-muted-foreground")
-                Text("EDA tools", className="text-sm font-semibold mb-1")
+                Text(f"{ready}/{total} EDA tools available", css_class="text-sm text-muted-foreground")
+                Text("EDA tools", css_class="text-sm font-semibold mb-1")
                 for name, ok in sorted(tools.items()):
                     Text(f"{name}: {'OK' if ok else 'missing'}")
                 Badge(f"PDK installed: {'yes' if data.get('pdk_installed') else 'no'}", variant="secondary")
-                Text(f"PDK_ROOT: {data.get('pdk_root') or '?'}", className="text-sm mt-2")
-                Text(f"Work dir: {data.get('work_dir') or '?'}", className="text-sm")
-                Text(f"Uptime: {data.get('uptime_s', 0)}s", className="text-sm")
+                Text(f"PDK_ROOT: {data.get('pdk_root') or '?'}", css_class="text-sm mt-2")
+                Text(f"Work dir: {data.get('work_dir') or '?'}", css_class="text-sm")
+                Text(f"Uptime: {data.get('uptime_s', 0)}s", css_class="text-sm")
         return PrefabApp(view=Card, title="Chip Design MCP - Status")
 
     @mcp.tool(app=True, version="0.1.0")
@@ -75,18 +76,24 @@ def register_prefab_tools(mcp, all_tools: dict) -> dict:
         await show_pdks_card()
         """
         fn = all_tools.get("chip_available_pdks")
-        data = await fn() if fn else {"pdks": []}
-        pdks = data.get("pdks") or []
-        with Card(className="max-w-lg"):
+        data: dict[str, Any] = await fn() if fn else {"pdks": []}
+        pdks: list[dict[str, Any]] = list(data.get("pdks") or [])
+        with Card(css_class="max-w-lg"):
             with CardHeader():
                 CardTitle("Available PDKs")
             with CardContent():
-                Text(f"PDK_ROOT: {data.get('pdk_root') or 'not set'}", className="text-sm text-muted-foreground")
+                Text(f"PDK_ROOT: {data.get('pdk_root') or 'not set'}", css_class="text-sm text-muted-foreground")
                 for pdk in pdks:
                     status = "installed" if pdk.get("available") else "not installed"
-                    Text(f"{pdk.get('name')} - {pdk.get('node')} ({pdk.get('vendor')})", className="text-sm font-semibold mt-1")
+                    Text(
+                        f"{pdk.get('name')} - {pdk.get('node')} ({pdk.get('vendor')})",
+                        css_class="text-sm font-semibold mt-1",
+                    )
                     Badge(status, variant="secondary" if pdk.get("available") else "outline")
-                Muted("Install: pip install volare && volare enable --pdk sky130 0bbdd5", className="text-sm mt-2")
+                Muted(
+                    "Install: pip install volare && volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095",
+                    css_class="text-sm mt-2",
+                )
         return PrefabApp(view=Card, title="Available PDKs")
 
     @mcp.tool(app=True, version="0.1.0")
@@ -97,17 +104,17 @@ def register_prefab_tools(mcp, all_tools: dict) -> dict:
         await show_pipeline_card()
         """
         fn = all_tools.get("chip_pipeline_stages")
-        data = await fn() if fn else {"stages": []}
-        stages = data.get("stages") or []
-        with Card(className="max-w-lg"):
+        data: dict[str, Any] = await fn() if fn else {"stages": []}
+        stages: list[dict[str, Any]] = list(data.get("stages") or [])
+        with Card(css_class="max-w-lg"):
             with CardHeader():
                 CardTitle("ASIC Pipeline - RTL to GDSII")
             with CardContent():
-                Text(f"{len(stages)} stages", className="text-sm text-muted-foreground")
+                Text(f"{len(stages)} stages", css_class="text-sm text-muted-foreground")
                 for stage in stages:
                     Text(
                         f"{stage.get('stage')} - {stage.get('tool')}: {stage.get('input')} -> {stage.get('output')}",
-                        className="text-sm font-semibold mt-1",
+                        css_class="text-sm font-semibold mt-1",
                     )
         return PrefabApp(view=Card, title="ASIC Pipeline")
 
@@ -119,18 +126,22 @@ def register_prefab_tools(mcp, all_tools: dict) -> dict:
         await show_depot_card()
         """
         fn = all_tools.get("depot_status")
-        data = (await fn() if fn else {}).get("data") or {}
-        with Card(className="max-w-lg"):
+        depot_result: dict[str, Any] = await fn() if fn else {}
+        data: dict[str, Any] = dict(depot_result.get("data") or {})
+        with Card(css_class="max-w-lg"):
             with CardHeader():
                 CardTitle("Depot - Storage")
             with CardContent():
                 Text(
                     f"{data.get('total_files', 0)} files - {_fmt_bytes(data.get('total_size_bytes', 0))}",
-                    className="text-sm text-muted-foreground",
+                    css_class="text-sm text-muted-foreground",
                 )
                 for area in ("designs", "uploads", "outputs"):
                     info = data.get(area) or {}
-                    Text(f"{area}: {info.get('files', 0)} files, {_fmt_bytes(info.get('size_bytes', 0))}", className="text-sm")
+                    Text(
+                        f"{area}: {info.get('files', 0)} files, {_fmt_bytes(info.get('size_bytes', 0))}",
+                        css_class="text-sm",
+                    )
         return PrefabApp(view=Card, title="Depot - Storage")
 
     @mcp.tool(app=True, version="0.1.0")
@@ -141,19 +152,21 @@ def register_prefab_tools(mcp, all_tools: dict) -> dict:
         await show_cells_stats_card(pdk="sky130")
         """
         fn = all_tools.get("cells_stats")
-        result = await fn(pdk=pdk) if fn else {"success": False}
-        data = result.get("data") or {}
-        with Card(className="max-w-lg"):
+        result: dict[str, Any] = await fn(pdk=pdk) if fn else {"success": False}
+        data: dict[str, Any] = dict(result.get("data") or {})
+        with Card(css_class="max-w-lg"):
             with CardHeader():
                 CardTitle(f"Standard Cells - {pdk}")
             with CardContent():
                 if not data.get("total_cells"):
-                    Text("No cells found. Set PDK_ROOT or install via volare.", className="text-sm")
-                    Muted("volare enable --pdk sky130 0bbdd5", className="text-sm mt-1")
+                    Text("No cells found. Set PDK_ROOT or install via volare.", css_class="text-sm")
+                    Muted(
+                        "volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095", css_class="text-sm mt-1"
+                    )
                 else:
-                    Text(f"{data.get('total_cells')} cells", className="text-sm text-muted-foreground")
+                    Text(f"{data.get('total_cells')} cells", css_class="text-sm text-muted-foreground")
                     for fn_name, count in sorted((data.get("by_function") or {}).items()):
-                        Text(f"{fn_name}: {count}", className="text-sm")
+                        Text(f"{fn_name}: {count}", css_class="text-sm")
         return PrefabApp(view=Card, title=f"Standard Cells - {pdk}")
 
     @mcp.tool(app=True, version="0.1.0")
@@ -164,18 +177,18 @@ def register_prefab_tools(mcp, all_tools: dict) -> dict:
         await show_cells_list_card(pdk="sky130", limit=20)
         """
         fn = all_tools.get("cells_list")
-        result = await fn(pdk=pdk, limit=limit) if fn else {"success": False}
-        cells = (result.get("data") or {}).get("cells") or []
-        with Card(className="max-w-lg"):
+        result: dict[str, Any] = await fn(pdk=pdk, limit=limit) if fn else {"success": False}
+        cells: list[dict[str, Any]] = list((result.get("data") or {}).get("cells") or [])
+        with Card(css_class="max-w-lg"):
             with CardHeader():
                 CardTitle(f"Cells - {pdk}")
             with CardContent():
                 if not cells:
-                    Text("No cells found. Set PDK_ROOT or install via volare.", className="text-sm")
+                    Text("No cells found. Set PDK_ROOT or install via volare.", css_class="text-sm")
                 else:
-                    Text(f"showing {len(cells)}", className="text-sm text-muted-foreground")
+                    Text(f"showing {len(cells)}", css_class="text-sm text-muted-foreground")
                     for cell in cells:
-                        Text(f"{cell.get('name')} ({cell.get('function')})", className="text-sm font-mono")
+                        Text(f"{cell.get('name')} ({cell.get('function')})", css_class="text-sm font-mono")
         return PrefabApp(view=Card, title=f"Cells - {pdk}")
 
     registered = {

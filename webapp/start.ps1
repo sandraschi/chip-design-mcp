@@ -17,6 +17,7 @@ $BackendPort  = 11022
 $FrontendPort = 11023
 $WebRoot      = $PSScriptRoot
 $RepoRoot     = Split-Path -Parent $WebRoot
+$env:CHIP_DESIGN_MCP_REPO_ROOT = $RepoRoot
 $env:CHIP_DESIGN_MCP_WORK_DIR = "$env:TEMP\chip_design_mcp_work"
 
 Write-Host ""
@@ -120,8 +121,8 @@ $uvExe = (Get-Command uv).Source
 if ($env:SKIP_SYNC -eq "1") {
     Write-Host "[2/6] Skipping Python deps (SKIP_SYNC=1)" -ForegroundColor DarkGray
 } else {
-    Write-Host "[2/6] Syncing Python deps (uv sync --all-extras --extra eda) ..." -ForegroundColor Cyan
-    & $uvExe sync --all-extras --extra eda --project $RepoRoot
+    Write-Host "[2/6] Syncing Python deps (uv sync --all-extras) ..." -ForegroundColor Cyan
+    & $uvExe sync --all-extras --project $RepoRoot
     if ($LASTEXITCODE -ne 0) {
         Write-Host "ERROR: uv sync failed." -ForegroundColor Red
         exit 1
@@ -162,7 +163,7 @@ if ($env:SKIP_EDA_INSTALL -eq "1") {
         Write-Host "ERROR: missing $installEda" -ForegroundColor Red
         exit 1
     }
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installEda -RepoRoot $RepoRoot -UvExe $uvExe
+    & $installEda -RepoRoot $RepoRoot -UvExe $uvExe
     if ($LASTEXITCODE -ne 0) {
         Write-Host "ERROR: EDA bootstrap failed. Fix Docker/WSL/winget, or set SKIP_EDA_INSTALL=1 for MCP-only." -ForegroundColor Red
         exit 1

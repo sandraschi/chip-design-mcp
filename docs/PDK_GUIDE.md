@@ -123,7 +123,8 @@ output slew, input capacitance for every pin-cell combination.
 ```bash
 # Via volare (recommended — handles PDK_ROOT conventions)
 pip install volare
-volare enable --pdk sky130 0bbdd5
+volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095
+# Must be a full 40-char open_pdks commit (volare ls-remote --pdk sky130). Short prefixes fail.
 
 # Verify
 echo $PDK_ROOT     # Should point to volare's install dir

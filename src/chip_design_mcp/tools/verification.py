@@ -66,13 +66,21 @@ def register_verification_tools(mcp, state: dict, run_eda, work_dir: str, output
         await verify_drc(gds_file="alu.gds", tech_file="/path/to/sky130A/sky130A.tech")
         """
         if not state.get("tools", {}).get("magic"):
-            return {"success": False, "message": "Magic not found. Install magic (sudo apt install magic).", "data": None}
+            return {
+                "success": False,
+                "message": "Magic not found. Install magic (sudo apt install magic).",
+                "data": None,
+            }
         gds_path = _resolve(gds_file)
         if not os.path.isfile(gds_path):
             return {"success": False, "message": f"GDS file not found: {gds_file}", "data": None}
         tech = tech_file or _sky130_tech()
         if not tech or not os.path.isfile(tech):
-            return {"success": False, "message": "Technology file not found. Set PDK_ROOT or provide tech_file.", "data": None}
+            return {
+                "success": False,
+                "message": "Technology file not found. Set PDK_ROOT or provide tech_file.",
+                "data": None,
+            }
         report_file = os.path.join(output_dir, f"{os.path.splitext(os.path.basename(gds_path))[0]}.drc.rpt")
         tcl = f"""
 tech load {tech}
@@ -148,7 +156,9 @@ quit
     async def verify_timing(
         netlist: Annotated[str, Field(description="Path to gate-level Verilog netlist.")],
         sdc_file: Annotated[str, Field(description="Path to SDC timing constraints file.")],
-        liberty: Annotated[str, Field(description="Path to Liberty (.lib) timing library (empty = sky130 from PDK_ROOT).")] = "",
+        liberty: Annotated[
+            str, Field(description="Path to Liberty (.lib) timing library (empty = sky130 from PDK_ROOT).")
+        ] = "",
         top_module: Annotated[str, Field(description="Top module name (empty = derived from netlist filename).")] = "",
     ) -> dict:
         """Run Static Timing Analysis (STA) using OpenSTA.
@@ -175,7 +185,9 @@ quit
         sdc_path = _resolve(sdc_file)
         if not os.path.isfile(net_path) or not os.path.isfile(sdc_path):
             return {"success": False, "message": "Input files not found.", "data": None}
-        top = top_module or os.path.splitext(os.path.basename(net_path))[0].replace("_synth", "").replace("_netlist", "")
+        top = top_module or os.path.splitext(os.path.basename(net_path))[0].replace("_synth", "").replace(
+            "_netlist", ""
+        )
         lib_path = liberty or _default_liberty()
         if not lib_path or not os.path.isfile(lib_path):
             return {

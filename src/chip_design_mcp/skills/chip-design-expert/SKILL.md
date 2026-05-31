@@ -27,7 +27,7 @@ Use **chip-design-mcp** to orchestrate the open-source ASIC pipeline — never r
 
 ```powershell
 pip install volare
-volare enable --pdk sky130 0bbdd5
+volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095
 ```
 
 ## Ports

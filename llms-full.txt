@@ -1,9 +1,12 @@
 # Chip Design MCP — Full LLM Context
 
 Chip Design MCP is a FastMCP 3.2 server for open-source ASIC/VLSI design
-automation. It orchestrates the open-source RTL-to-GDSII flow by shelling out
-to industry-standard EDA tools (yosys, iverilog/cocotb, OpenLane, magic,
-netgen, OpenSTA) as subprocesses. It implements no EDA algorithms of its own.
+automation. **Editorial framing:** superyacht magazine for silicon — see
+**docs/DREAMING_IN_SILICON.md** (fantasy repo: show what COULD be done with FOSS
+sky130/OpenLane; warn before long runs; KiCad/kicad-mcp is PCB epilogue only).
+It orchestrates the open-source RTL-to-GDSII flow by shelling out to industry-
+standard EDA tools (yosys, iverilog/cocotb, OpenLane, magic, netgen, OpenSTA).
+It implements no EDA algorithms of its own.
 
 ## Mental model
 
@@ -11,8 +14,12 @@ The server is a thin, honest orchestration layer. Every tool either runs a real
 external binary or returns a truthful "tool not found / install X" message. The
 server starts and runs with zero EDA tools installed — discovery reports what is
 missing, and non-EDA tools (depot scaffolding, cell-name classification, status)
-work regardless. There is no hidden state beyond per-domain in-memory dicts that
-remember the "last loaded" Verilog / design between calls within a session.
+work regardless. On Windows, **start.bat** step 3 runs **scripts/install-eda.ps1**
+(Docker/OpenLane image, WSL apt EDA, volare sky130, bin/*.cmd shims). See **INSTALL.md**
+and **docs/PRD.md**. Set **SKIP_EDA_INSTALL=1** to skip EDA bootstrap.
+
+There is no hidden state beyond per-domain in-memory dicts that remember the "last
+loaded" Verilog / design between calls within a session.
 
 ## Pipeline
 
@@ -33,7 +40,8 @@ Canonical: **docs/FABRICATION_AND_FABS.md** — chip vs tile/slice, complexity t
 - **Discovery:** `glama.json`, `GET /.well-known/mcp/manifest.json`, `GET /api/capabilities`
 - **FastMCP 3.2:** `SkillsDirectoryProvider` → `skill://chip-design-expert`, `@mcp.prompt`, `resource://chip-design/quickstart`, `chip_agentic` (sampling)
 - **Quality:** `uv.lock`, `.pre-commit-config.yaml`, CI (ruff + pytest + ty non-blocking)
-- **Docs:** `docs/mcp_registration.md`, `docs/docstrings_sota.md` (pointers to canonical MCD rules)
+- **Docs:** `INSTALL.md`, `docs/PRD.md`, `docs/mcp_registration.md`, `docs/docstrings_sota.md` (pointers to canonical MCD rules)
+- **Install:** `webapp/start.ps1` (6 steps), `scripts/install-eda.ps1`, `SKIP_EDA_INSTALL`
 
 ## Transport / ports
 
@@ -139,7 +147,7 @@ the REST dispatcher. Disable registration with `CHIP_DESIGN_MCP_PREFAB_APPS=0`.
 
 ```
 pip install volare
-volare enable --pdk sky130 0bbdd5     # sets PDK_ROOT
+volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095     # sets PDK_ROOT
 ```
 sky130 (130nm, SkyWater/Google), gf180mcu (180nm, GlobalFoundries),
 ihp-sg13g2 (130nm BiCMOS, IHP). All Apache-2.0 / open.

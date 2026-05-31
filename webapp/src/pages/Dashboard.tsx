@@ -1,7 +1,7 @@
+import { Activity, Boxes, Cpu, Layers } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiGet } from '../lib/api';
-import { Activity, Boxes, Cpu, Layers } from 'lucide-react';
 
 interface ToolsResponse {
   count?: number;
@@ -13,12 +13,21 @@ export default function Dashboard() {
   const [tools, setTools] = useState<string[]>([]);
 
   useEffect(() => {
-    apiGet('/api/v1/status').then(setStatus).catch(console.error);
-    apiGet<ToolsResponse>('/api/v1/tools').then((d) => setTools(d.tools ?? [])).catch(console.error);
+    apiGet('/api/v1/status')
+      .then(setStatus)
+      .catch(() => setStatus(null));
+    apiGet<ToolsResponse>('/api/v1/tools')
+      .then((d) => setTools(d.tools ?? []))
+      .catch(() => setTools([]));
   }, []);
 
   const cards = [
-    { label: 'Server', value: String(status?.server ?? 'offline'), icon: Activity, color: 'emerald' },
+    {
+      label: 'Server',
+      value: String(status?.server ?? 'offline'),
+      icon: Activity,
+      color: 'emerald',
+    },
     { label: 'Version', value: String(status?.version ?? '-'), icon: Cpu, color: 'blue' },
     { label: 'Mode', value: String(status?.mode ?? '-'), icon: Layers, color: 'purple' },
     { label: 'Tools', value: String(tools.length), icon: Boxes, color: 'amber' },
@@ -53,10 +62,13 @@ export default function Dashboard() {
       </div>
 
       <p className="text-sm text-gray-500">
+        <Link to="/chiplab" className="text-emerald-400 hover:text-emerald-300">
+          ChipLab workflows
+        </Link>
+        {' · '}
         <Link to="/help" className="text-emerald-400 hover:text-emerald-300">
           Help and docs
-        </Link>
-        {' '}
+        </Link>{' '}
         mirror <code className="text-emerald-400">docs/tools/</code> via the REST help API.
       </p>
     </div>

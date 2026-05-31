@@ -14,7 +14,7 @@ default:
 # -- Lifecycle ----------------------------------------------------------------
 
 bootstrap:
-    uv sync --all-extras --extra eda
+    uv sync --all-extras
     Set-Location '{{justfile_directory()}}\webapp'
     if (Get-Command bun -ErrorAction SilentlyContinue) { bun install } else { cmd /c npm install }
 
@@ -47,15 +47,19 @@ dev port=PORT:
 # -- Quality ------------------------------------------------------------------
 
 lint:
-    uv run ruff check src/
+    uv run ruff check src tests
+    uv run ruff format --check src tests
     Set-Location '{{justfile_directory()}}\webapp'
+    if (Get-Command bun -ErrorAction SilentlyContinue) { bun run lint } else { npx @biomejs/biome check src/ }
     if (Get-Command bun -ErrorAction SilentlyContinue) { bunx tsc --noEmit } else { npx tsc --noEmit }
 
 fix:
-    uv run ruff check src/ --fix
-    uv run ruff format src/
+    uv run ruff check src tests --fix
+    uv run ruff format src tests
+    Set-Location '{{justfile_directory()}}\webapp'
+    if (Get-Command bun -ErrorAction SilentlyContinue) { bun run format } else { npx @biomejs/biome check --write src/ }
 
-check: lint test
+check: lint test ty
 
 ty:
     uv run ty check src

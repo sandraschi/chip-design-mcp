@@ -19,6 +19,7 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
+
 import httpx
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, UploadFile
@@ -27,6 +28,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastmcp import FastMCP
 
 from chip_design_mcp import __version__
+from chip_design_mcp.chiplab import PIPELINE_STAGES, ChiplabManager
 from chip_design_mcp.prompts_resources import register_prompts_and_resources
 from chip_design_mcp.tools import (
     register_agentic_chip_tools,
@@ -43,7 +45,23 @@ logger = logging.getLogger("chip-design-mcp")
 
 _READ_ONLY = {"readOnlyHint": True}
 _START_TIME = time.time()
-_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _resolve_repo_root() -> Path:
+    """Repo root for docs/help (not the Python package dir)."""
+    env = os.environ.get("CHIP_DESIGN_MCP_REPO_ROOT", "").strip()
+    if env:
+        root = Path(env).resolve()
+        if (root / "pyproject.toml").is_file():
+            return root
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        if (parent / "pyproject.toml").is_file() and (parent / "src" / "chip_design_mcp").is_dir():
+            return parent
+    return here.parents[2]
+
+
+_REPO_ROOT = _resolve_repo_root()
 
 WORK_DIR = os.environ.get(
     "CHIP_DESIGN_MCP_WORK_DIR",
@@ -72,6 +90,9 @@ _HELP_SLUGS: dict[str, Path] = {
     "development": _REPO_ROOT / "docs" / "DEVELOPMENT.md",
     "troubleshooting": _REPO_ROOT / "docs" / "TROUBLESHOOTING.md",
     "pdk": _REPO_ROOT / "docs" / "PDK_GUIDE.md",
+    "foss-eda-ecosystem": _REPO_ROOT / "docs" / "FOSS_EDA_ECOSYSTEM.md",
+    "foss-rtl-sources": _REPO_ROOT / "docs" / "FOSS_RTL_SOURCES.md",
+    "dreaming-in-silicon": _REPO_ROOT / "docs" / "DREAMING_IN_SILICON.md",
 }
 
 _DISCOVER_NAMES = {
@@ -89,6 +110,7 @@ OPENLANE_IMAGE = "ghcr.io/the-openroad-project/openlane:latest"
 
 _state: dict[str, Any] = {}
 _all_tools: dict[str, Any] = {}
+_chiplab: ChiplabManager | None = None
 
 
 # ── Subprocess helpers ───────────────────────────────────────────────────────
@@ -213,6 +235,14 @@ async def lifespan(app: FastAPI):
     _state["outputs_dir"] = OUTPUT_DIR
     _state["designs_dir"] = DESIGNS_DIR
     _state["synthesis"] = {}
+    global _chiplab
+    _chiplab = ChiplabManager(
+        _all_tools,
+        _state,
+        designs_dir=DESIGNS_DIR,
+        upload_dir=UPLOAD_DIR,
+        llm_chat_fn=_llm_chat_message,
+    )
     yield
 
 
@@ -363,7 +393,7 @@ async def chip_available_pdks() -> dict:
     await chip_available_pdks()
     """
     pdk_root = os.environ.get("PDK_ROOT", "")
-    catalog = [
+    catalog: list[dict[str, Any]] = [
         {"name": "sky130", "node": "130nm", "vendor": "SkyWater/Google", "subdir": "sky130A"},
         {"name": "gf180mcu", "node": "180nm", "vendor": "GlobalFoundries", "subdir": "gf180mcuA"},
         {"name": "ihp-sg13g2", "node": "130nm BiCMOS", "vendor": "IHP", "subdir": "ihp-sg13g2"},
@@ -446,6 +476,8 @@ async def api_capabilities():
             "control": "/api/v1/control/{tool_name}",
             "capabilities": "/api/capabilities",
             "help": "/api/v1/help/{slug}",
+            "chiplab": "/api/v1/chiplab/workflows",
+            "chiplab_assist": "/api/v1/chiplab/assist",
             "manifest": "/.well-known/mcp/manifest.json",
         },
     }
@@ -469,7 +501,14 @@ async def api_help_slug(slug: str):
     path = _HELP_SLUGS.get(slug)
     if not path or not path.is_file():
         raise HTTPException(status_code=404, detail=f"Help slug not found: {slug}")
-    return {"slug": slug, "title": slug, "content": path.read_text(encoding="utf-8"), "path": str(path)}
+    text = path.read_text(encoding="utf-8")
+    return {
+        "slug": slug,
+        "title": slug,
+        "content": text,
+        "markdown": text,
+        "path": str(path),
+    }
 
 
 @app.get("/api/v1/tools/detail")
@@ -536,6 +575,39 @@ async def api_llm_status():
     return result
 
 
+async def _llm_chat_message(
+    message: str,
+    *,
+    provider: str | None = None,
+    model: str | None = None,
+) -> dict[str, Any]:
+    """Proxy chat to detected local LLM (Ollama or LM Studio)."""
+    if not message:
+        return {"ok": False, "error": "message required"}
+    status = await api_llm_status()
+    provider = provider or status.get("provider")
+    if provider == "ollama":
+        url = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
+        use_model = model or status.get("model") or "llama3"
+        payload = {"model": use_model, "messages": [{"role": "user", "content": message}], "stream": False}
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            resp = await client.post(f"{url}/api/chat", json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+        return {"ok": True, "response": data.get("message", {}).get("content", ""), "provider": "ollama"}
+    if provider == "lmstudio":
+        url = os.environ.get("LMSTUDIO_URL", "http://127.0.0.1:1234/v1")
+        use_model = model or status.get("model") or ""
+        payload = {"model": use_model, "messages": [{"role": "user", "content": message}], "max_tokens": 2048}
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            resp = await client.post(f"{url}/chat/completions", json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        return {"ok": True, "response": content, "provider": "lmstudio"}
+    return {"ok": False, "error": "No local LLM detected. Start Ollama or LM Studio."}
+
+
 @app.post("/api/v1/llm/chat")
 async def api_llm_chat(request: Request):
     """Proxy chat to detected local LLM (Ollama or LM Studio)."""
@@ -543,29 +615,72 @@ async def api_llm_chat(request: Request):
     message = body.get("message") or body.get("prompt") or ""
     if not message:
         raise HTTPException(status_code=400, detail="message required")
-    provider = body.get("provider")
-    status = await api_llm_status()
-    provider = provider or status.get("provider")
-    if provider == "ollama":
-        url = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
-        model = body.get("model") or status.get("model") or "llama3"
-        payload = {"model": model, "messages": [{"role": "user", "content": message}], "stream": False}
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.post(f"{url}/api/chat", json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-        return {"ok": True, "response": data.get("message", {}).get("content", ""), "provider": "ollama"}
-    if provider == "lmstudio":
-        url = os.environ.get("LMSTUDIO_URL", "http://127.0.0.1:1234/v1")
-        model = body.get("model") or status.get("model") or ""
-        payload = {"model": model, "messages": [{"role": "user", "content": message}], "max_tokens": 1024}
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.post(f"{url}/chat/completions", json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-        return {"ok": True, "response": content, "provider": "lmstudio"}
-    return {"ok": False, "error": "No local LLM detected. Start Ollama or LM Studio."}
+    result = await _llm_chat_message(
+        message,
+        provider=body.get("provider"),
+        model=body.get("model"),
+    )
+    if not result.get("ok"):
+        return result
+    return result
+
+
+@app.get("/api/v1/chiplab/presets")
+async def api_chiplab_presets():
+    if not _chiplab:
+        raise HTTPException(status_code=503, detail="ChipLab not initialized")
+    return {"presets": _chiplab.list_presets(), "pipeline": PIPELINE_STAGES}
+
+
+@app.get("/api/v1/chiplab/workflows")
+async def api_chiplab_workflows():
+    if not _chiplab:
+        raise HTTPException(status_code=503, detail="ChipLab not initialized")
+    return {"workflows": _chiplab.list_workflows(), "count": len(_chiplab.list_workflows())}
+
+
+@app.get("/api/v1/chiplab/workflows/{workflow_id}")
+async def api_chiplab_workflow(workflow_id: str):
+    if not _chiplab:
+        raise HTTPException(status_code=503, detail="ChipLab not initialized")
+    wf = _chiplab.get_workflow(workflow_id)
+    if not wf:
+        raise HTTPException(status_code=404, detail=f"Workflow not found: {workflow_id}")
+    return wf
+
+
+@app.post("/api/v1/chiplab/workflows")
+async def api_chiplab_create_workflow(request: Request):
+    if not _chiplab:
+        raise HTTPException(status_code=503, detail="ChipLab not initialized")
+    body = await request.json()
+    preset_id = body.get("preset_id") or body.get("preset")
+    if not preset_id:
+        raise HTTPException(status_code=400, detail="preset_id required")
+    params = body.get("params") or {}
+    try:
+        wf = await _chiplab.create_workflow(
+            preset_id,
+            params if isinstance(params, dict) else {},
+            auto_start=body.get("auto_start", True),
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    return wf
+
+
+@app.post("/api/v1/chiplab/assist")
+async def api_chiplab_assist(request: Request):
+    if not _chiplab:
+        raise HTTPException(status_code=503, detail="ChipLab not initialized")
+    body = await request.json()
+    operation = body.get("operation") or "chat"
+    return await _chiplab.assist(
+        operation,
+        prompt=body.get("prompt") or body.get("message"),
+        workflow_id=body.get("workflow_id"),
+        preset_id=body.get("preset_id"),
+    )
 
 
 @app.post("/api/v1/upload")
@@ -620,11 +735,15 @@ def main():
     if agentic:
         try:
             from fastmcp.experimental.transforms.code_mode import CodeMode
-
-            CodeMode().attach(mcp)
-            logger.info("CodeMode agentic discovery enabled")
         except ImportError as e:
             logger.warning("CodeMode not available: %s", e)
+        else:
+            attach_fn = getattr(CodeMode(), "attach", None)
+            if callable(attach_fn):
+                attach_fn(mcp)
+                logger.info("CodeMode agentic discovery enabled")
+            else:
+                logger.warning("CodeMode.attach not available in this FastMCP build")
 
     if args.mode == "stdio":
         mcp.run(transport="stdio")

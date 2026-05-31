@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { HELP_TABS } from '../lib/helpSlugs';
 import HelpDocPanel from '../components/HelpDocPanel';
+import { HELP_TABS } from '../lib/helpSlugs';
 
 export default function HelpPage() {
   const [params, setParams] = useSearchParams();
@@ -26,7 +26,8 @@ export default function HelpPage() {
     <div>
       <h1 className="text-2xl font-bold text-white mb-1">Help & Documentation</h1>
       <p className="text-gray-400 text-sm mb-6">
-        Fleet README stack and per-domain tool guides — same content as <code className="text-emerald-400">docs/tools/</code>
+        Fleet README stack and per-domain tool guides — same content as{' '}
+        <code className="text-emerald-400">docs/tools/</code>
       </p>
 
       <div className="flex flex-wrap gap-1 border-b border-gray-800 pb-0 mb-6">

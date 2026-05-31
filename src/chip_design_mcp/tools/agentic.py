@@ -27,7 +27,7 @@ def register_agentic_chip_tools(mcp, all_tools: dict, state: dict):
             str | None,
             Field(description="User goal or question (required for natural_query and flow_plan)."),
         ] = None,
-        ctx: Context = None,
+        ctx: Context | None = None,
     ) -> dict[str, Any]:
         """LLM-assisted chip design orchestration using MCP sampling when available.
 
@@ -74,13 +74,11 @@ def register_agentic_chip_tools(mcp, all_tools: dict, state: dict):
             }
 
         if operation == "flow_plan":
-            step = await ctx.sample_step(
-                prompt=(
-                    "You are an open-source ASIC flow engineer (Yosys, cocotb, OpenLane, Magic, sky130). "
-                    f"Plan ordered tool calls for: {prompt}\n{_TOOL_CATALOG}"
-                ),
-                max_steps=6,
+            plan_prompt = (
+                "You are an open-source ASIC flow engineer (Yosys, cocotb, OpenLane, Magic, sky130). "
+                f"Plan ordered tool calls for: {prompt}\n{_TOOL_CATALOG}"
             )
+            step = await ctx.sample_step(plan_prompt, max_tokens=2048)
             return {
                 "success": True,
                 "operation": operation,
@@ -89,19 +87,12 @@ def register_agentic_chip_tools(mcp, all_tools: dict, state: dict):
                 "steps": [step] if step is not None else [],
             }
 
-        res = await ctx.sample(
-            messages=[
-                {
-                    "role": "user",
-                    "content": (
-                        "Answer as a chip-design MCP assistant. Be concise. "
-                        f"Question: {prompt}\n\nTool catalog:\n{_TOOL_CATALOG}\n\n"
-                        f"Current state keys: {list(state.keys())}"
-                    ),
-                }
-            ],
-            max_tokens=2048,
+        query = (
+            "Answer as a chip-design MCP assistant. Be concise. "
+            f"Question: {prompt}\n\nTool catalog:\n{_TOOL_CATALOG}\n\n"
+            f"Current state keys: {list(state.keys())}"
         )
+        res = await ctx.sample(query, max_tokens=2048)
         text = getattr(res, "text", None) or str(res)
         return {
             "success": True,

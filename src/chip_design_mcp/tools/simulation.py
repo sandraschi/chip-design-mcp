@@ -76,7 +76,13 @@ def register_simulation_tools(mcp, state: dict, run_eda, work_dir: str, output_d
             return {
                 "success": False,
                 "message": "iverilog compilation failed",
-                "data": {"passed": 0, "failed": 1, "waveform": None, "stdout": comp.get("stdout", ""), "stderr": comp.get("stderr", "")},
+                "data": {
+                    "passed": 0,
+                    "failed": 1,
+                    "waveform": None,
+                    "stdout": comp.get("stdout", ""),
+                    "stderr": comp.get("stderr", ""),
+                },
             }
         vcd_path = os.path.join(output_dir, f"{top}.vcd") if waves else None
         run_args = ["vvp", vvp_path]

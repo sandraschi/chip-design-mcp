@@ -1,12 +1,12 @@
 # chip-design-mcp — Agent Context
 
-FastMCP 3.2 server orchestrating the open-source RTL-to-GDSII ASIC flow
+FastMCP 3.2 server orchestrating the open-source RTL-to-GDSII ASIC flow. **Tone:** superyacht magazine for silicon ([docs/DREAMING_IN_SILICON.md](docs/DREAMING_IN_SILICON.md)) — inspire and document what is possible with FOSS; warn before long OpenLane runs; KiCad is the PCB epilogue (kicad-mcp), not wafer design.
 (yosys / cocotb+iverilog / OpenLane / magic / netgen / OpenSTA). It implements
 **no EDA algorithms** — it shells out to industry-standard open-source tools as
 subprocesses and exposes them as MCP tools + a REST surface.
 
 - **Backend:** FastAPI + FastMCP, port **11022** (`/mcp`, `/sse`, `/api/v1/*`)
-- **Frontend:** Vite/React dashboard, port **11023**
+- **Frontend:** Vite/React dashboard, **Biome** + tsc, port **11023**
 - **Work dir:** `%TEMP%\chip_design_mcp_work` (override: `CHIP_DESIGN_MCP_WORK_DIR`)
 - **Tools:** 28 domain (synthesis/simulation/place_route/verification/standard_cells/depot) + 3 system + **chip_agentic** + 6 Prefab
 - **Fleet:** `manifest.json`, MCPB prompts (`assets/prompts/`), `llms.txt`/`llms-full.txt`, `glama.json`, `justfile`, `uv.lock`, `bun.lock`, `.pre-commit-config.yaml`, CI, `install-mcp.ps1`, `--agentic` CodeMode
@@ -15,7 +15,7 @@ subprocesses and exposes them as MCP tools + a REST surface.
 ## Run / test
 
 ```powershell
-just bootstrap          # uv sync --all-extras --extra eda + webapp install
+just bootstrap          # uv sync --all-extras (includes eda + dev) + webapp install
 just install-eda        # Docker + WSL yosys + volare sky130 (also run from start.ps1 step 3)
 just serve              # backend on 11022
 just web                # webapp on 11023
@@ -73,6 +73,11 @@ uv run pytest tests/ -q # smoke + unit tests (no EDA tools required)
 |------|---------|
 | `src/chip_design_mcp/server.py` | FastMCP+FastAPI gateway, discovery, REST, system tools |
 | `src/chip_design_mcp/tools/*.py` | Six domain modules (register_* closures) |
+| `INSTALL.md` | **Canonical install** (automated EDA on Windows) |
+| `docs/PRD.md` | Product requirements |
+| `docs/FOSS_EDA_ECOSYSTEM.md` | FOSS CAD to create/implement RTL (KiCad vs ASIC, LiteX, LibreLane, …) |
+| `docs/FOSS_RTL_SOURCES.md` | Curated external RTL (neuraedge, OpenSpike, CPUs) |
+| `docs/DREAMING_IN_SILICON.md` | Editorial — fantasy repo, warnings, reading order |
 | `docs/` | ARCHITECTURE, TOOLS, CONFIGURATION, DEVELOPMENT, TROUBLESHOOTING, PDK_GUIDE, … |
 | `docs/tools/*.md` | Per-domain tool guides (served at `/api/v1/help/{slug}`) |
 | `webapp/src/pages/HelpPage.tsx` | Central Help tabs; domain pages use Overview + Help |

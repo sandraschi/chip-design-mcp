@@ -1,10 +1,13 @@
 export const HELP_TABS = [
+  { id: 'dreaming-in-silicon', label: 'Dream' },
   { id: 'install', label: 'Install' },
   { id: 'architecture', label: 'Architecture' },
   { id: 'configuration', label: 'Config' },
   { id: 'development', label: 'Development' },
   { id: 'troubleshooting', label: 'Troubleshooting' },
   { id: 'pdk', label: 'PDK' },
+  { id: 'foss-eda-ecosystem', label: 'FOSS EDA' },
+  { id: 'foss-rtl-sources', label: 'FOSS RTL' },
   { id: 'fabrication', label: 'Fabrication' },
   { id: 'mini_fab', label: 'Mini fab' },
   { id: 'production', label: 'Production' },

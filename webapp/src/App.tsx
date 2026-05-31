@@ -1,14 +1,15 @@
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
-import Dashboard from './pages/Dashboard';
-import SynthesisPage from './pages/SynthesisPage';
-import SimulationPage from './pages/SimulationPage';
-import PlaceRoutePage from './pages/PlaceRoutePage';
-import VerificationPage from './pages/VerificationPage';
 import CellsPage from './pages/CellsPage';
+import ChiplabPage from './pages/ChiplabPage';
+import Dashboard from './pages/Dashboard';
 import DepotPage from './pages/DepotPage';
 import HelpPage from './pages/HelpPage';
+import PlaceRoutePage from './pages/PlaceRoutePage';
+import SimulationPage from './pages/SimulationPage';
 import StatusPage from './pages/StatusPage';
+import SynthesisPage from './pages/SynthesisPage';
+import VerificationPage from './pages/VerificationPage';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/verification" element={<VerificationPage />} />
         <Route path="/cells" element={<CellsPage />} />
         <Route path="/depot" element={<DepotPage />} />
+        <Route path="/chiplab" element={<ChiplabPage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="/status" element={<StatusPage />} />
       </Routes>

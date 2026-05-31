@@ -1,5 +1,7 @@
 # Chip Design MCP — Installation
 
+**Canonical operator guide** (the part of the superyacht magazine where they let you touch the helm). Read [docs/DREAMING_IN_SILICON.md](docs/DREAMING_IN_SILICON.md) first if you want warnings and context. Product scope: [docs/PRD.md](docs/PRD.md). Changes: [CHANGELOG.md](CHANGELOG.md).
+
 ## Quick start (naked PC, fully automated)
 
 Only **git** and **winget** are assumed. `start.bat` installs everything else:
@@ -64,3 +66,30 @@ Or `chip_status` / webapp **Status** page after start.
 ## Without full EDA (dev / docs only)
 
 Set `SKIP_EDA_INSTALL=1`. Server and depot/help tools still work; synthesis/sim/P&R return truthful "not found" errors.
+
+## Linux / macOS
+
+`start.ps1` targets Windows naked-PC. On Linux or macOS:
+
+```bash
+git clone https://github.com/sandraschi/chip-design-mcp.git
+cd chip-design-mcp
+uv sync --all-extras
+# Install EDA per docs/SETUP.md (apt/brew), Docker + OpenLane pull, volare enable
+just serve   # :11022
+just web     # :11023
+```
+
+Automated `install-eda.sh` is planned; use [docs/SETUP.md](docs/SETUP.md) until then.
+
+## Related
+
+| Doc | Use when |
+|-----|----------|
+| [README.md](README.md) | One-page overview |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Errors after install |
+| [docs/CONFIGURATION.md](docs/CONFIGURATION.md) | Env vars |
+| [docs/DREAMING_IN_SILICON.md](docs/DREAMING_IN_SILICON.md) | Why this exists (read first) |
+| [docs/PRD.md](docs/PRD.md) | Requirements and roadmap |
+| [docs/FOSS_EDA_ECOSYSTEM.md](docs/FOSS_EDA_ECOSYSTEM.md) | Open CAD stack (create RTL, FPGA, ASIC) |
+| [docs/FOSS_RTL_SOURCES.md](docs/FOSS_RTL_SOURCES.md) | External RTL repositories |

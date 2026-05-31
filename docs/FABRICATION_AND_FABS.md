@@ -2,6 +2,8 @@
 
 How to go from **GDSII** (layout) to **silicon**, and which **provider** fits your **complexity**, **density**, and **budget**. This doc is the fleet reference for chip-design-mcp users; the webapp **Help → Fabrication** tab shows the same content.
 
+**Before layout:** where RTL comes from and which FOSS CAD tools exist — [FOSS_RTL_SOURCES.md](FOSS_RTL_SOURCES.md), [FOSS_EDA_ECOSYSTEM.md](FOSS_EDA_ECOSYSTEM.md). **Editorial:** [DREAMING_IN_SILICON.md](DREAMING_IN_SILICON.md) — why ~$100–500 shuttles are mind-blowing compared to historical NRE, and why you still should not mail GDSII to a fab without reading their rules.
+
 ---
 
 ## 1. Words you need (chip vs slice vs shuttle)
@@ -56,7 +58,7 @@ Install with **volare** (never hand-copy PDK trees):
 
 ```powershell
 pip install volare
-volare enable --pdk sky130 0bbdd5
+volare enable --pdk sky130 7519dfb04400f224f140749cda44ee7de6f5e095
 volare enable --pdk gf180mcu
 volare enable --pdk ihp-sg13g2
 ```
