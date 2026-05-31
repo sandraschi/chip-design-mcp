@@ -1,0 +1,87 @@
+{
+  "$schema": "https://glama.ai/schemas/mcp.json",
+  "name": "chip-design-mcp",
+  "version": "0.1.0",
+  "description": "FastMCP 3.2 open-source ASIC flow: Yosys, cocotb/iverilog, OpenLane, Magic/netgen, sky130/gf180 PDKs. Prefab cards, sampling agentic assist, skills, React dashboard (11022/11023).",
+  "author": "Sandra Schipal",
+  "license": "MIT",
+  "language": "python",
+  "framework": "fastmcp",
+  "type": "mcp_server",
+  "status": "beta",
+  "transport": ["stdio", "http"],
+  "keywords": [
+    "asic",
+    "vlsi",
+    "yosys",
+    "openlane",
+    "sky130",
+    "mcp",
+    "fastmcp",
+    "eda",
+    "rtl",
+    "gdsii",
+    "fleet"
+  ],
+  "categories": ["Developer Tools", "Hardware", "AI Agents"],
+  "homepage": "https://github.com/sandraschi/chip-design-mcp",
+  "repository": {
+    "url": "https://github.com/sandraschi/chip-design-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "github",
+      "identifier": "sandraschi/chip-design-mcp",
+      "transport": {
+        "type": "stdio",
+        "command": "uv",
+        "args": ["run", "python", "-m", "chip_design_mcp.server", "--mode", "stdio"]
+      }
+    },
+    {
+      "registryType": "github",
+      "identifier": "sandraschi/chip-design-mcp",
+      "transport": {
+        "type": "http",
+        "url": "http://127.0.0.1:11022/mcp"
+      }
+    }
+  ],
+  "mcpServers": {
+    "chip-design-mcp": {
+      "name": "chip-design-mcp",
+      "command": "uv",
+      "args": ["run", "python", "-m", "chip_design_mcp.server", "--mode", "stdio"],
+      "env": {},
+      "description": "Stdio MCP (Claude Desktop / Cursor).",
+      "capabilities": {
+        "tools": { "enabled": true, "listChanged": true },
+        "resources": { "enabled": true },
+        "prompts": { "enabled": true },
+        "skills": { "enabled": true },
+        "webapp": {
+          "enabled": true,
+          "url": "http://127.0.0.1:11023",
+          "api_url": "http://127.0.0.1:11022"
+        }
+      }
+    },
+    "chip-design-mcp-http": {
+      "name": "chip-design-mcp-http",
+      "url": "http://127.0.0.1:11022/mcp",
+      "description": "Streamable HTTP MCP. Start: just serve or start.bat",
+      "capabilities": {
+        "tools": { "enabled": true, "listChanged": true },
+        "resources": { "enabled": true },
+        "prompts": { "enabled": true },
+        "skills": { "enabled": true },
+        "webapp": {
+          "enabled": true,
+          "url": "http://127.0.0.1:11023",
+          "api_url": "http://127.0.0.1:11022"
+        }
+      }
+    }
+  }
+}

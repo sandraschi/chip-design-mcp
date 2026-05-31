@@ -1,0 +1,335 @@
+
+Synthesis MCP tools — Yosys RTL synthesis.
+
+Provides Verilog loading, elaboration, synthesis passes, statistics,
+schematic generation, and netlist export.
+
+Registered via register_synthesis_tools(mcp, **deps) — called from server.py.
+
+---
+chip-design-mcp.synthesis
+---
+readonly
+---
+state
+---
+work_dir
+---
+output_dir
+---
+upload_dir
+---
+Register all Synthesis MCP tools on the FastMCP instance.
+---
+0.1.0
+---
+return
+---
+Check Yosys availability and version.
+
+## Return Format
+{"success": bool, "yosys_available": bool, "version": str, "path": str | None}
+
+## Examples
+await syn_status()
+
+---
+tools
+---
+yosys
+---
+-V
+---
+success
+---
+stdout
+---
+unknown
+---
+file_name
+---
+Verilog filename in uploads directory (e.g. 'counter.v').
+---
+top_module
+---
+Top-level module name to synthesize.
+---
+liberty
+---
+Liberty (.lib) cell library path (optional).
+---
+Load Verilog source files and optionally set the top module.
+
+## Return Format
+{"success": bool, "message": str, "data": {"file": str, "top_module": str, "liberty": str | None}}
+
+## Examples
+await syn_read_verilog(file_name="counter.v", top_module="counter")
+await syn_read_verilog(file_name="alu.v", top_module="alu", liberty="sky130_fd_sc_hd__tt_025C_1v80.lib")
+
+---
+File not found: 
+---
+verilog_file
+---
+top_module
+---
+liberty
+---
+Loaded 
+---
+ (top: 
+---
+)
+---
+
+---
+Top module to synthesize (uses last loaded if empty).
+---
+flatten
+---
+Flatten hierarchy during synthesis.
+---
+abc9
+---
+Use ABC9 for technology mapping (recommended).
+---
+script_extra
+---
+Extra Yosys commands to append to synthesis script.
+---
+Run Yosys synthesis: elaborate → synth → techmap → opt → stat.
+
+## Return Format
+{"success": bool, "message": str, "data": {"cells": int, "area": float | None, "stdout": str, "stderr": str}}
+
+## Examples
+await syn_run(top_module="counter")
+await syn_run(top_module="alu", flatten=True)
+
+---
+top_module
+---
+
+---
+No top module specified. Use top_module parameter.
+---
+verilog_file
+---
+No Verilog file loaded. Use syn_read_verilog first.
+---
+liberty
+---
+tools
+---
+yosys
+---
+Yosys not found. Install yosys.
+---
+read_verilog 
+---
+hierarchy -top 
+---
+; flatten 
+---
+proc; opt
+---
+fsm; opt
+---
+memory; opt
+---
+techmap; opt
+---
+dfflibmap -liberty 
+---
+abc9 -liberty 
+---
+abc -liberty 
+---
+abc; opt_clean
+---
+
+
+---
+#
+---
+_stat_
+---
+.json
+---
+tee -o 
+---
+ stat -json
+---
+write_verilog -noattr 
+---
+_synth.v
+---
+;
+
+---
+_syn_
+---
+.ys
+---
+w
+---
+-s
+---
+stdout
+---
+{
+---
+modules
+---
+num_cells
+---
+num_wires
+---
+area
+---
+success
+---
+Synthesis of '
+---
+' 
+---
+completed
+---
+failed
+---
+stderr
+---
+Get synthesis statistics from the last syn_run (cell count, area, wires).
+
+## Return Format
+{"success": bool, "data": {"cells": int, "wires": int, "area": float | None, "state": dict}}
+
+## Examples
+await syn_stats()
+
+---
+verilog_file
+---
+top_module
+---
+liberty
+---
+Module to generate schematic for.
+---
+format
+---
+Output format: dot, svg, or pdf.
+---
+Generate a schematic diagram of the synthesized design using Yosys 'show'.
+
+## Return Format
+{"success": bool, "message": str, "data": {"output_file": str, "format": str}}
+
+## Examples
+await syn_show(top_module="counter", format="svg")
+
+---
+tools
+---
+yosys
+---
+Yosys not found.
+---
+verilog_file
+---
+
+---
+No Verilog loaded. Use syn_read_verilog first.
+---
+.dot
+---
+.
+---
+read_verilog 
+---
+; hierarchy -top 
+---
+; proc; show -format dot -prefix 
+---
+ 
+---
+_show.ys
+---
+w
+---
+-s
+---
+success
+---
+Yosys show failed: 
+---
+stderr
+---
+dot
+---
+GRAPHVIZ_DOT
+---
+-T
+---
+-o
+---
+Schematic generated
+---
+Schematic generated (DOT format)
+---
+Netlist format: verilog, json, or spice.
+---
+Export the synthesized gate-level netlist.
+
+## Return Format
+{"success": bool, "message": str, "data": {"output_file": str, "format": str, "size_bytes": int}}
+
+## Examples
+await syn_export_netlist(format="verilog")
+await syn_export_netlist(format="json")
+
+---
+top_module
+---
+top
+---
+verilog_file
+---
+
+---
+tools
+---
+yosys
+---
+Run syn_read_verilog first.
+---
+v
+---
+json
+---
+spice
+---
+_netlist.
+---
+write_verilog -noattr 
+---
+write_json 
+---
+write_spice 
+---
+read_verilog 
+---
+; hierarchy -top 
+---
+; proc; techmap; opt; 
+---
+_export.ys
+---
+w
+---
+-s
+---
+success
+---
+Netlist exported as 

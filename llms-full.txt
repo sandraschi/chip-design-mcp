@@ -1,0 +1,163 @@
+# Chip Design MCP — Full LLM Context
+
+Chip Design MCP is a FastMCP 3.2 server for open-source ASIC/VLSI design
+automation. It orchestrates the open-source RTL-to-GDSII flow by shelling out
+to industry-standard EDA tools (yosys, iverilog/cocotb, OpenLane, magic,
+netgen, OpenSTA) as subprocesses. It implements no EDA algorithms of its own.
+
+## Mental model
+
+The server is a thin, honest orchestration layer. Every tool either runs a real
+external binary or returns a truthful "tool not found / install X" message. The
+server starts and runs with zero EDA tools installed — discovery reports what is
+missing, and non-EDA tools (depot scaffolding, cell-name classification, status)
+work regardless. There is no hidden state beyond per-domain in-memory dicts that
+remember the "last loaded" Verilog / design between calls within a session.
+
+## Pipeline
+
+```
+RTL (.v) → Simulation (cocotb+iverilog) → Synthesis (Yosys) → Floorplan
+  → Placement → CTS → Routing → STA (OpenSTA) → DRC (Magic) → LVS (netgen) → GDSII
+```
+
+## Fabrication (silicon)
+
+Canonical: **docs/FABRICATION_AND_FABS.md** — chip vs tile/slice, complexity tiers T0–T5, PDK density (sky130 HD/HS, gf180, IHP), providers (Tiny Tapeout ~$100+, ChipFoundry ~$15k, Europractice/CMP academic, Muse/commercial MPW), free vs paid, submission workflows. Webapp Help tab `fabrication`.
+
+## Fleet conformance (mcp-central-docs)
+
+- **MCPB:** `manifest.json`, `assets/icon.png`, `assets/prompts/` (system 3000+ words, user 4000+ words, 115 examples), `just mcpb-pack`, `just install-mcp`
+- **Frontend:** Bun Phase 1 (`bun install`, `bun run dev`); Node retained for Vite runtime
+- **CLI:** `--agentic` or `MCP_AGENTIC=1` enables CodeMode BM25 discovery
+- **Discovery:** `glama.json`, `GET /.well-known/mcp/manifest.json`, `GET /api/capabilities`
+- **FastMCP 3.2:** `SkillsDirectoryProvider` → `skill://chip-design-expert`, `@mcp.prompt`, `resource://chip-design/quickstart`, `chip_agentic` (sampling)
+- **Quality:** `uv.lock`, `.pre-commit-config.yaml`, CI (ruff + pytest + ty non-blocking)
+- **Docs:** `docs/mcp_registration.md`, `docs/docstrings_sota.md` (pointers to canonical MCD rules)
+
+## Transport / ports
+
+- Backend (FastAPI + FastMCP): port 11022 — `/mcp`, `/sse`, `/api/v1/*`, `/.well-known/mcp/manifest.json`
+- Frontend (Vite/React): port 11023 (proxies `/api`, `/sse`, `/mcp` → 11022)
+- stdio mode: `uv run python -m chip_design_mcp.server --mode stdio`
+- Work dir: `%TEMP%\chip_design_mcp_work` (uploads/, output/, designs/)
+
+## Architecture
+
+```
+MCP client/LLM ─┐
+REST client    ─┴→ FastAPI+FastMCP (11022) ─→ _run_eda(subprocess) ─→ yosys
+                                            ├→ _run_eda             ─→ iverilog/vvp
+                                            ├→ _run_openlane        ─→ docker/openlane
+                                            └→ _run_eda             ─→ magic / netgen / opensta
+```
+
+Each domain module defines `register_<domain>_tools(mcp, state, run_eda, ...)`,
+decorates async tool fns with `@mcp.tool(annotations=..., version="0.1.0")`, and
+returns `{tool_name: fn}`. `server.py` merges all six dicts plus the three system
+tools into `_all_tools`, which the REST dispatcher `POST /api/v1/control/{tool}`
+invokes by name. Because tools are plain async callables, they are unit-testable
+without an MCP client and reusable across the MCP and REST surfaces.
+
+## Tools (31 total: 28 domain + 3 system)
+
+### Synthesis — Yosys (6)
+- `syn_status()` — yosys availability + version. READ_ONLY.
+- `syn_read_verilog(file_name, top_module="", liberty="")` — load RTL from uploads, set top/liberty. READ_ONLY.
+- `syn_run(top_module="", flatten=False, abc9=True, script_extra="")` — elaborate→proc→fsm→memory→techmap→abc(9)→stat→write_verilog. MUTATING.
+- `syn_stats()` — last-run summary (file/top/liberty). READ_ONLY.
+- `syn_show(top_module, format="svg")` — yosys `show` → dot, then graphviz to svg/pdf. READ_ONLY.
+- `syn_export_netlist(format="verilog")` — write_verilog/write_json/write_spice. MUTATING.
+
+### Simulation — cocotb + iverilog (4)
+- `sim_list_tests(test_dir="")` — discover `test_*.py`. READ_ONLY.
+- `sim_run_testbench(dut_file, test_module, top_module="", waves=True, extra_args="")` — iverilog compile → vvp run. MUTATING.
+- `sim_read_waveform(vcd_file, signals="", start_time=0, end_time=0)` — parse VCD header for signal names. READ_ONLY.
+- `sim_check_coverage(test_dir="")` — scan test files for `@cocotb.test` and test fns. READ_ONLY.
+
+### Place & Route — OpenLane (7)
+- `pr_status()` — OpenLane/Docker/PDK status. READ_ONLY. (Known: docker_available under-reports — see Known Limitations.)
+- `pr_create_design(design_name, verilog_file, pdk="sky130")` — make design dir + OpenLane config.json. MUTATING.
+- `pr_configure(design_name, clock_period=10, core_util=40, target_density=0.55, die_area="", macros="")` — edit config.json. MUTATING.
+- `pr_run_flow(design_name, from_stage="synthesis", to_stage="", tag="")` — run the flow (Docker/native), 3600 s timeout. MUTATING.
+- `pr_read_reports(design_name, report_type="all", tag="")` — read signoff timing/area/power/drc reports. READ_ONLY.
+- `pr_export_gds(design_name, tag="")` — copy final `.gds` to outputs. MUTATING.
+- `pr_export_lef(design_name, tag="")` — copy final `.lef` to outputs. MUTATING.
+
+### Verification (4)
+- `verify_drc(gds_file, tech_file="")` — Magic DRC; falls back to `$PDK_ROOT/sky130A/.../sky130A.tech`. READ_ONLY.
+- `verify_lvs(gds_file, spice_netlist, top_cell="")` — netgen LVS. READ_ONLY.
+- `verify_timing(netlist, sdc_file, liberty="")` — OpenSTA STA → WNS/TNS. READ_ONLY. (Known: hardcodes `link_design top`.)
+- `verify_formal(design_verilog, reference_verilog)` — Yosys equiv_make/equiv_induct. READ_ONLY.
+
+### Standard Cells — PDK (4)
+- `cells_list(pdk="sky130", limit=50)` — list cells from PDK verilog dir. READ_ONLY.
+- `cells_info(cell_name, pdk="sky130")` — pins (regex over verilog model), function, drive. READ_ONLY.
+- `cells_search(function="all", pdk="sky130", limit=30)` — filter by classified function. READ_ONLY.
+- `cells_stats(pdk="sky130")` — counts by function. READ_ONLY.
+
+PDK map: sky130→`sky130A/libs.ref/sky130_fd_sc_hd/verilog`,
+gf180mcu→`gf180mcuA/libs.ref/gf180mcu_fd_sc_mcu7t5v0/verilog`,
+ihp-sg13g2→`ihp-sg13g2/libs.ref/sg13g2_stdcell/verilog`.
+
+### Depot — project management (3)
+- `depot_init(project_name, template="counter", pdk="sky130")` — scaffold src RTL + cocotb tb + Makefile + OpenLane config + README. Templates: counter, alu, fsm, empty. MUTATING.
+- `depot_list(directory="designs")` — list designs/uploads/outputs or a project. READ_ONLY.
+- `depot_status()` — file counts + byte totals per area. READ_ONLY.
+
+### System (3)
+- `chip_status()` — tool availability, PDK root, work dirs, uptime. READ_ONLY.
+- `chip_pipeline_stages()` — the 11 ASIC stages with tool/in/out. READ_ONLY.
+- `chip_available_pdks()` — sky130 / gf180mcu / ihp-sg13g2 + availability. READ_ONLY.
+
+### Prefab UI App tools (6, MCP-only, `app=True`)
+In-chat rich cards (FastMCP 3.2 + `prefab-ui`). Each calls the matching JSON tool
+and renders a `PrefabApp`; plain-text hosts use the JSON tools unchanged. Not on
+the REST dispatcher. Disable registration with `CHIP_DESIGN_MCP_PREFAB_APPS=0`.
+- `show_chip_status_card()` — EDA availability + PDK + uptime.
+- `show_pdks_card()` — supported PDKs + install status.
+- `show_pipeline_card()` — 11-stage pipeline.
+- `show_depot_card()` — depot storage stats.
+- `show_cells_stats_card(pdk="sky130")` — cell counts by function.
+- `show_cells_list_card(pdk="sky130", limit=30)` — cell list.
+
+## REST surface
+
+- `GET  /api/v1/status` — health + tool availability
+- `GET  /api/v1/tools` — list registered tools (count = 31)
+- `GET  /api/capabilities` — introspection (tools, EDA availability, PDK, feature flags) for webapp gating
+- `POST /api/v1/control/{tool_name}` — invoke any tool with JSON body
+- `POST /api/v1/upload` — upload a design file (multipart)
+- `GET  /api/v1/list?dir=uploads|outputs|designs`
+- `GET  /api/v1/download/{file_name}?dir=outputs|uploads|designs`
+- `GET  /api/v1/tools/detail` — tool catalog with domain + docstring (Tools Hub)
+- `GET  /api/v1/fleet` — live fleet discovery (bounded port scan 10700–11100)
+- `GET  /api/v1/llm/status` — detect local LLM (Ollama 11434 / LM Studio 1234)
+- `POST /api/v1/llm/chat` — proxy chat to the detected local LLM
+
+## PDK installation (volare)
+
+```
+pip install volare
+volare enable --pdk sky130 0bbdd5     # sets PDK_ROOT
+```
+sky130 (130nm, SkyWater/Google), gf180mcu (180nm, GlobalFoundries),
+ihp-sg13g2 (130nm BiCMOS, IHP). All Apache-2.0 / open.
+
+## Production paths
+
+TinyTapeout (~$100, shared MPW, 1 chip + dev kit) → ChipFoundry chipIgnite
+(~$15k, full SoC, 100 chips) → custom MPW → full mask set. See
+docs/PRODUCTION_PATHS.md and docs/MINI_FAB.md.
+
+## Known limitations (truthful)
+
+- DRC/LVS/formal pass/fail are stdout string-match heuristics, not parsed decks.
+- API Docs page uses a plain (white) Swagger iframe; dark-CSS injection deferred.
+- Webapp theme is slate/emerald, not the Zinc/Amber fleet tokens.
+- Prefab cards are read-only (no interactive forms yet).
+
+## Repo
+
+- GitHub: github.com/sandraschi/chip-design-mcp (MIT)
+- Build: uv + hatchling + justfile; fastmcp==3.2.0, python>=3.12

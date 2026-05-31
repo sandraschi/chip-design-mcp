@@ -1,0 +1,347 @@
+
+Verification MCP tools — DRC, LVS, STA, and formal verification.
+
+Provides design rule checking via Magic, layout-vs-schematic via netgen,
+static timing analysis, and formal equivalence checking.
+
+Registered via register_verification_tools(mcp, **deps) — called from server.py.
+
+---
+chip-design-mcp.verification
+---
+readonly
+---
+state
+---
+work_dir
+---
+output_dir
+---
+upload_dir
+---
+Register all Verification MCP tools on the FastMCP instance.
+---
+0.1.0
+---
+gds_file
+---
+Path to GDSII layout file.
+---
+tech_file
+---
+Magic technology file path (e.g. sky130A.tech).
+---
+return
+---
+Run Design Rule Check (DRC) on a GDSII layout using Magic.
+
+## Return Format
+{"success": bool, "data": {"violations": int, "report": str, "report_file": str | None}}
+
+## Examples
+await verify_drc(gds_file="my_counter.gds")
+await verify_drc(gds_file="alu.gds", tech_file="/path/to/sky130A/sky130A.tech")
+
+---
+tools
+---
+magic
+---
+Magic not found. Install magic (sudo apt install magic).
+---
+GDS file not found: 
+---
+PDK_ROOT
+---
+
+---
+sky130A
+---
+libs.tech
+---
+sky130A.tech
+---
+Technology file not found. Set PDK_ROOT or provide tech_file.
+---
+.drc.rpt
+---
+
+tech load 
+---
+
+gds read 
+---
+
+load 
+---
+
+select top cell
+expand
+drc catchup
+drc check
+drc why
+drc count
+quit -noprompt
+
+---
+_drc.tcl
+---
+w
+---
+-dnull
+---
+-noconsole
+---
+stdout
+---
+stderr
+---
+
+
+---
+drc
+---
+success
+---
+DRC complete: 
+---
+ potential violations found
+---
+spice_netlist
+---
+Path to extracted SPICE netlist.
+---
+top_cell
+---
+Top cell name for LVS comparison.
+---
+Run Layout vs Schematic (LVS) comparison using netgen.
+
+## Return Format
+{"success": bool, "data": {"match": bool, "report": str}}
+
+## Examples
+await verify_lvs(gds_file="counter.gds", spice_netlist="counter.spice")
+
+---
+tools
+---
+netgen
+---
+netgen not found.
+---
+Input files not found.
+---
+
+readnet spice 
+---
+
+readnet gds 
+---
+
+lvs {
+---
+ 
+---
+} {
+---
+} setup.tcl comp.out
+quit
+
+---
+_lvs.tcl
+---
+w
+---
+-batch
+---
+source
+---
+Circuits match
+---
+stdout
+---
+match uniquely
+---
+success
+---
+LVS 
+---
+PASSED: circuits match
+---
+FAILED: mismatch detected
+---
+
+
+---
+stderr
+---
+netlist
+---
+Path to gate-level Verilog netlist.
+---
+sdc_file
+---
+Path to SDC timing constraints file.
+---
+liberty
+---
+Path to Liberty (.lib) timing library (empty = sky130 from PDK_ROOT).
+---
+top_module
+---
+Top module name (empty = derived from netlist filename).
+---
+Run Static Timing Analysis (STA) using OpenSTA.
+
+## Return Format
+{"success": bool, "data": {"wns": float | None, "tns": float | None, "setup_violations": int, "hold_violations": int, "report": str}}
+
+## Examples
+await verify_timing(netlist="counter_synth.v", sdc_file="counter.sdc")
+
+---
+tools
+---
+opensta
+---
+OPENSTA_HOME
+---
+
+---
+OpenSTA not found. Install OpenSTA or set OPENSTA_HOME.
+---
+Input files not found.
+---
+_synth
+---
+_netlist
+---
+PDK_ROOT
+---
+sky130A
+---
+libs.ref
+---
+sky130_fd_sc_hd
+---
+lib
+---
+sky130_fd_sc_hd__tt_025C_1v80.lib
+---
+No Liberty (.lib) provided and none found in PDK_ROOT. Pass liberty=... (e.g. sky130_fd_sc_hd__tt_025C_1v80.lib).
+---
+
+read_liberty 
+---
+
+read_verilog 
+---
+
+link_design 
+---
+
+read_sdc 
+---
+
+report_checks -path_delay min_max -format full
+report_wns
+report_tns
+exit
+
+---
+_sta.tcl
+---
+w
+---
+-no_init
+---
+-exit
+---
+stdout
+---
+
+
+---
+wns
+---
+tns
+---
+success
+---
+STA complete. WNS=
+---
+ TNS=
+---
+design_verilog
+---
+Path to synthesized Verilog netlist.
+---
+reference_verilog
+---
+Path to golden reference Verilog.
+---
+Run formal equivalence checking between two netlists using Yosys.
+
+## Return Format
+{"success": bool, "data": {"equivalent": bool, "report": str}}
+
+## Examples
+await verify_formal(design_verilog="counter_synth.v", reference_verilog="counter_golden.v")
+
+---
+tools
+---
+yosys
+---
+Yosys not found.
+---
+Input files not found.
+---
+
+read_verilog 
+---
+
+design -stash gold
+
+read_verilog 
+---
+
+design -stash gate
+
+design -copy-from gold -as gold 
+---
+
+design -copy-from gate -as gate 
+---
+
+
+equiv_make gold gate equiv
+equiv_induct -seq 10
+equiv_status -assert
+
+---
+_equiv.ys
+---
+w
+---
+-s
+---
+PASS
+---
+stdout
+---
+equiv_status
+---
+success
+---
+Formal check 
+---
+PASSED: equivalent
+---
+FAILED or inconclusive
+---
+
+
+---
+stderr

@@ -1,0 +1,69 @@
+# Chip Design MCP — LLM Context
+
+Full corpus: **llms-full.txt**. Fleet standards: **mcp-central-docs** (`SOTA_REQUIREMENTS.md`, `chip_design_cad_sota.md`).
+
+Chip Design MCP is a FastMCP 3.2 server that provides AI-driven open-source ASIC/VLSI design automation. It exposes 28+ MCP tools across 6 domains, Prefab cards, prompts/resources, bundled **skill://chip-design-expert**, and **chip_agentic** sampling — covering the full RTL-to-GDSII pipeline.
+
+Discovery: `GET http://127.0.0.1:11022/.well-known/mcp/manifest.json` (stdio + HTTP). Claude Desktop: root **manifest.json** + `just mcpb-pack`.
+
+## Key Files
+
+| Path | Purpose |
+|------|---------|
+| `src/chip_design_mcp/server.py` | FastMCP + FastAPI gateway, 460 lines |
+| `src/chip_design_mcp/tools/synthesis.py` | 6 Yosys synthesis tools: status, read, run, stats, show, export |
+| `src/chip_design_mcp/tools/simulation.py` | 4 cocotb+iverilog tools: list, run, waveform, coverage |
+| `src/chip_design_mcp/tools/place_route.py` | 7 OpenLane tools: status, create, configure, run, reports, gds, lef |
+| `src/chip_design_mcp/tools/verification.py` | 4 verification tools: drc, lvs, timing, formal |
+| `src/chip_design_mcp/tools/standard_cells.py` | 4 PDK tools: list, info, search, stats |
+| `src/chip_design_mcp/tools/depot.py` | 3 project tools: init, list, status + template generators |
+| `webapp/` | React 19 + Vite 6 + Tailwind + TypeScript dashboard |
+| `start.ps1` | Fleet-standard startup script |
+| `justfile` | Lifecycle: bootstrap, serve, dev, lint, test, e2e, fix, yosys-check, openlane-check, cocotb-check, flow-test |
+
+## Architecture
+
+```
+MCP Client/LLM → HTTP/SSE → FastMCP → yosys (subprocess, Verilog→netlist)
+                                     → iverilog/vvp (subprocess, simulation)
+                                     → OpenLane (Docker/subprocess, RTL→GDS)
+                                     → magic/netgen (subprocess, DRC/LVS)
+```
+
+The server discovers EDA tools at startup from PATH. Tools are registered via `register_*_tools(mcp, state, run_eda, ...)` closures — the kicad-mcp pattern.
+
+## Ports
+
+| Port | Service |
+|------|---------|
+| 11022 | Backend (FastAPI + FastMCP) |
+| 11023 | Frontend (Vite dev) |
+
+## Quick Start
+
+```powershell
+just bootstrap
+just serve
+# Open http://localhost:11023
+```
+
+## Tool Categories
+
+- **Synthesis** (6): syn_status, syn_read_verilog, syn_run, syn_stats, syn_show, syn_export_netlist
+- **Simulation** (4): sim_list_tests, sim_run_testbench, sim_read_waveform, sim_check_coverage
+- **Place & Route** (7): pr_status, pr_create_design, pr_configure, pr_run_flow, pr_read_reports, pr_export_gds, pr_export_lef
+- **Verification** (4): verify_drc, verify_lvs, verify_timing, verify_formal
+- **Standard Cells** (4): cells_list, cells_info, cells_search, cells_stats
+- **Depot** (3): depot_init, depot_list, depot_status
+- **System** (3): chip_status, chip_pipeline_stages, chip_available_pdks
+
+## PDK Support
+
+- SkyWater 130nm (`sky130`) — via volare
+- GlobalFoundries 180nm (`gf180mcu`) — via volare
+- IHP SG13G2 130nm BiCMOS (`ihp-sg13g2`) — via volare
+
+## Production Paths
+
+- TinyTapeout (~$100) — shared MPW shuttle
+- Efabless/Google shuttle (free for open-source)

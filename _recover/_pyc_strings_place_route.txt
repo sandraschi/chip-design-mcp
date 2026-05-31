@@ -1,0 +1,318 @@
+
+Place & Route MCP tools — OpenLane automated RTL-to-GDSII flow.
+
+Provides OpenLane configuration, flow execution, report reading,
+and GDSII/LEF/DEF export.
+
+Registered via register_place_route_tools(mcp, **deps) — called from server.py.
+
+---
+chip-design-mcp.place_route
+---
+readonly
+---
+state
+---
+work_dir
+---
+output_dir
+---
+designs_dir
+---
+Register all Place & Route MCP tools on the FastMCP instance.
+---
+0.1.0
+---
+return
+---
+Check OpenLane availability, Docker status, and PDK setup.
+
+## Return Format
+{"success": bool, "openlane_available": bool, "docker_available": bool, "pdk_root": str | None}
+
+## Examples
+await pr_status()
+
+---
+openlane_ok
+---
+tools
+---
+docker
+---
+PDK_ROOT
+---
+pdk_installed
+---
+design_name
+---
+Name of the chip design project.
+---
+verilog_file
+---
+Verilog RTL filename in uploads directory.
+---
+pdk
+---
+PDK to use: sky130, gf180mcu, or ihp-sg13g2.
+---
+Create a new OpenLane design directory from a Verilog source file.
+
+## Return Format
+{"success": bool, "message": str, "data": {"design_dir": str, "verilog": str, "pdk": str}}
+
+## Examples
+await pr_create_design(design_name="my_counter", verilog_file="counter.v")
+
+---
+uploads
+---
+Verilog file not found: 
+---
+src
+---
+dir::src/
+---
+clk
+---
+sky130
+---
+A
+---
+config.json
+---
+w
+---
+design_dir
+---
+design_name
+---
+Design '
+---
+' created with 
+---
+ PDK
+---
+Design name to configure.
+---
+clock_period
+---
+Clock period in ns.
+---
+core_util
+---
+Core utilization percentage (1-90).
+---
+target_density
+---
+Placement target density (0.1-0.99).
+---
+die_area
+---
+Die area as 'x0 y0 x1 y1' in microns (empty = auto).
+---
+macros
+---
+Comma-separated macro module names.
+---
+Configure OpenLane flow parameters for a design.
+
+## Return Format
+{"success": bool, "data": {"config_path": str, "params": dict}}
+
+## Examples
+await pr_configure(design_name="my_counter", clock_period=20)
+await pr_configure(design_name="my_alu", clock_period=5, core_util=60)
+
+---
+config.json
+---
+Design not found: 
+---
+. Use pr_create_design first.
+---
+CLOCK_PERIOD
+---
+FP_CORE_UTIL
+---
+PL_TARGET_DENSITY
+---
+ 
+---
+DIE_AREA
+---
+,
+---
+MACROS
+---
+w
+---
+Configuration updated for '
+---
+'
+---
+Design name to run.
+---
+from_stage
+---
+Start from stage: synthesis, floorplan, placement, cts, routing, signoff.
+---
+to_stage
+---
+Stop after stage (empty = run to end).
+---
+tag
+---
+Run tag for outputs (e.g. 'v1', 'experiment').
+---
+Run the OpenLane flow (RTL-to-GDSII) for a design.
+
+Stages: synthesis → floorplan → placement → cts → routing → signoff
+
+## Return Format
+{"success": bool, "message": str, "data": {"run_dir": str, "stage": str, "stdout": str, "stderr": str}}
+
+## Examples
+await pr_run_flow(design_name="my_counter")
+await pr_run_flow(design_name="my_alu", from_stage="floorplan", tag="v2")
+
+---
+config.json
+---
+Design not found: 
+---
+--design=
+---
+--from=
+---
+--to=
+---
+--tag=
+---
+runs
+---
+RUN_LATEST
+---
+run_dir
+---
+success
+---
+OpenLane flow 
+---
+completed
+---
+failed
+---
+ for '
+---
+'
+---
+signoff
+---
+stdout
+---
+stderr
+---
+Design name.
+---
+report_type
+---
+Report type: timing, power, area, drc, all.
+---
+Run tag (default: latest).
+---
+Read OpenLane flow reports (timing, power, area, DRC).
+
+## Return Format
+{"success": bool, "data": {"timing": dict | None, "power": dict | None, "area": dict | None, "drc": dict | None}}
+
+## Examples
+await pr_read_reports(design_name="my_counter")
+await pr_read_reports(design_name="my_alu", report_type="timing")
+
+---
+runs
+---
+
+---
+No run found. Run pr_run_flow first.
+---
+reports
+---
+signoff
+---
+.sta.rpt
+---
+timing
+---
+.area.rpt
+---
+area
+---
+.power.rpt
+---
+power
+---
+.drc.rpt
+---
+drc
+---
+Reports for '
+---
+' (run: 
+---
+)
+---
+Export the final GDSII layout file from an OpenLane run.
+
+## Return Format
+{"success": bool, "data": {"gds_file": str, "size_bytes": int}}
+
+## Examples
+await pr_export_gds(design_name="my_counter")
+
+---
+runs
+---
+
+---
+No run found.
+---
+results
+---
+final
+---
+.gds
+---
+GDS file not found. Flow may not have completed to signoff.
+---
+GDSII for '
+---
+' exported
+---
+Export the LEF (Library Exchange Format) macro view.
+
+## Return Format
+{"success": bool, "data": {"lef_file": str, "size_bytes": int}}
+
+## Examples
+await pr_export_lef(design_name="my_counter")
+
+---
+runs
+---
+
+---
+No run found.
+---
+results
+---
+final
+---
+.lef
+---
+LEF file not found. Run may not have completed.
+---
+LEF for '
+---
+' exported

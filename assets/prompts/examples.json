@@ -1,0 +1,878 @@
+[
+  {
+    "tool": "syn_status",
+    "args": {},
+    "description": "Check if Yosys is installed and report version"
+  },
+  {
+    "tool": "syn_status",
+    "args": {},
+    "description": "Baseline synthesis toolchain discovery on session start"
+  },
+  {
+    "tool": "syn_read_verilog",
+    "args": {
+      "file_name": "counter.v",
+      "top_module": "counter"
+    },
+    "description": "Load counter RTL from uploads"
+  },
+  {
+    "tool": "syn_read_verilog",
+    "args": {
+      "file_name": "alu.v",
+      "top_module": "alu",
+      "liberty": "sky130_fd_sc_hd__tt_025C_1v80.lib"
+    },
+    "description": "Load ALU with Liberty basename hint"
+  },
+  {
+    "tool": "syn_read_verilog",
+    "args": {
+      "file_name": "fsm.v",
+      "top_module": "ctrl_fsm"
+    },
+    "description": "Load FSM top without liberty yet"
+  },
+  {
+    "tool": "syn_run",
+    "args": {
+      "top_module": "counter"
+    },
+    "description": "Synthesize counter with default ABC9"
+  },
+  {
+    "tool": "syn_run",
+    "args": {
+      "top_module": "alu",
+      "flatten": true
+    },
+    "description": "Flatten hierarchy before mapping ALU"
+  },
+  {
+    "tool": "syn_run",
+    "args": {
+      "top_module": "counter",
+      "abc9": false
+    },
+    "description": "Fallback classic ABC mapping"
+  },
+  {
+    "tool": "syn_run",
+    "args": {
+      "top_module": "my_design",
+      "abc9": true,
+      "script_extra": "opt_clean"
+    },
+    "description": "Synthesis with extra Yosys opt_clean"
+  },
+  {
+    "tool": "syn_stats",
+    "args": {},
+    "description": "Inspect last loaded Verilog and liberty paths"
+  },
+  {
+    "tool": "syn_show",
+    "args": {
+      "top_module": "counter",
+      "format": "svg"
+    },
+    "description": "Generate SVG schematic for counter"
+  },
+  {
+    "tool": "syn_show",
+    "args": {
+      "top_module": "alu",
+      "format": "dot"
+    },
+    "description": "DOT netlist diagram for ALU"
+  },
+  {
+    "tool": "syn_show",
+    "args": {
+      "top_module": "fsm",
+      "format": "pdf"
+    },
+    "description": "PDF schematic for FSM"
+  },
+  {
+    "tool": "syn_export_netlist",
+    "args": {
+      "format": "verilog"
+    },
+    "description": "Export gate-level Verilog netlist"
+  },
+  {
+    "tool": "syn_export_netlist",
+    "args": {
+      "format": "json"
+    },
+    "description": "Export Yosys JSON netlist for inspection"
+  },
+  {
+    "tool": "syn_export_netlist",
+    "args": {
+      "format": "spice"
+    },
+    "description": "Export SPICE netlist for analog co-sim"
+  },
+  {
+    "tool": "syn_read_verilog",
+    "args": {
+      "file_name": "tt_um.v",
+      "top_module": "tt_um",
+      "liberty": "C:/Users/dev/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+    },
+    "description": "Tiny Tapeout module with full Liberty path"
+  },
+  {
+    "tool": "syn_run",
+    "args": {
+      "top_module": "tt_um",
+      "flatten": false,
+      "abc9": true
+    },
+    "description": "Tapeout-bound synthesis run"
+  },
+  {
+    "tool": "sim_list_tests",
+    "args": {},
+    "description": "List cocotb tests in default uploads directory"
+  },
+  {
+    "tool": "sim_list_tests",
+    "args": {
+      "test_dir": "designs/my_counter/tests"
+    },
+    "description": "List tests in depot project folder"
+  },
+  {
+    "tool": "sim_run_testbench",
+    "args": {
+      "dut_file": "counter.v",
+      "test_module": "test_counter"
+    },
+    "description": "Run counter testbench with waves"
+  },
+  {
+    "tool": "sim_run_testbench",
+    "args": {
+      "dut_file": "alu.v",
+      "test_module": "test_alu",
+      "waves": false
+    },
+    "description": "Fast ALU sim without VCD"
+  },
+  {
+    "tool": "sim_run_testbench",
+    "args": {
+      "dut_file": "fsm.v",
+      "test_module": "test_fsm",
+      "top_module": "ctrl_fsm"
+    },
+    "description": "FSM with explicit top"
+  },
+  {
+    "tool": "sim_run_testbench",
+    "args": {
+      "dut_file": "counter.v",
+      "test_module": "test_counter",
+      "extra_args": "-g2012 -Wall"
+    },
+    "description": "iverilog with SV2012 and warnings"
+  },
+  {
+    "tool": "sim_read_waveform",
+    "args": {
+      "vcd_file": "C:/Temp/chip_design_mcp_work/sim_counter/counter.vcd"
+    },
+    "description": "Parse counter VCD signals"
+  },
+  {
+    "tool": "sim_read_waveform",
+    "args": {
+      "vcd_file": "alu.vcd",
+      "signals": "result,zero,carry"
+    },
+    "description": "Extract ALU result flags from VCD"
+  },
+  {
+    "tool": "sim_read_waveform",
+    "args": {
+      "vcd_file": "fsm.vcd",
+      "signals": "state,done",
+      "start_time": 100,
+      "end_time": 5000
+    },
+    "description": "FSM state window"
+  },
+  {
+    "tool": "sim_check_coverage",
+    "args": {},
+    "description": "Scan default uploads for test functions"
+  },
+  {
+    "tool": "sim_check_coverage",
+    "args": {
+      "test_dir": "designs/lab_alu/tests"
+    },
+    "description": "Coverage hint for ALU cocotb files"
+  },
+  {
+    "tool": "sim_run_testbench",
+    "args": {
+      "dut_file": "tt_counter.v",
+      "test_module": "test_tt_counter",
+      "top_module": "tt_counter",
+      "waves": true
+    },
+    "description": "Tiny Tapeout counter smoke sim"
+  },
+  {
+    "tool": "sim_list_tests",
+    "args": {
+      "test_dir": "uploads"
+    },
+    "description": "Explicit uploads test discovery"
+  },
+  {
+    "tool": "sim_read_waveform",
+    "args": {
+      "vcd_file": "sim_tt_counter/tt_counter.vcd"
+    },
+    "description": "Read tapeout counter waveform"
+  },
+  {
+    "tool": "pr_status",
+    "args": {},
+    "description": "Check Docker OpenLane and PDK before flow"
+  },
+  {
+    "tool": "pr_create_design",
+    "args": {
+      "design_name": "my_counter",
+      "verilog_file": "counter.v"
+    },
+    "description": "Create sky130 OpenLane project"
+  },
+  {
+    "tool": "pr_create_design",
+    "args": {
+      "design_name": "gf180_demo",
+      "verilog_file": "counter.v",
+      "pdk": "gf180mcu"
+    },
+    "description": "GF180 MCU project"
+  },
+  {
+    "tool": "pr_create_design",
+    "args": {
+      "design_name": "ihp_rf",
+      "verilog_file": "mixer.v",
+      "pdk": "ihp-sg13g2"
+    },
+    "description": "IHP BiCMOS project scaffold"
+  },
+  {
+    "tool": "pr_configure",
+    "args": {
+      "design_name": "my_counter",
+      "clock_period": 10
+    },
+    "description": "Default 10ns clock"
+  },
+  {
+    "tool": "pr_configure",
+    "args": {
+      "design_name": "my_counter",
+      "clock_period": 20,
+      "core_util": 50
+    },
+    "description": "Relaxed 20ns clock higher util"
+  },
+  {
+    "tool": "pr_configure",
+    "args": {
+      "design_name": "my_alu",
+      "clock_period": 5,
+      "core_util": 60,
+      "target_density": 0.65
+    },
+    "description": "Aggressive 200MHz target"
+  },
+  {
+    "tool": "pr_configure",
+    "args": {
+      "design_name": "macro_soc",
+      "die_area": "0 0 500 500",
+      "macros": "sram_block,pll_core"
+    },
+    "description": "SoC with die area and macros"
+  },
+  {
+    "tool": "pr_run_flow",
+    "args": {
+      "design_name": "my_counter"
+    },
+    "description": "Full RTL to GDSII"
+  },
+  {
+    "tool": "pr_run_flow",
+    "args": {
+      "design_name": "my_counter",
+      "tag": "v1"
+    },
+    "description": "Tagged production run"
+  },
+  {
+    "tool": "pr_run_flow",
+    "args": {
+      "design_name": "my_alu",
+      "from_stage": "floorplan",
+      "to_stage": "routing"
+    },
+    "description": "Partial floorplan through route"
+  },
+  {
+    "tool": "pr_run_flow",
+    "args": {
+      "design_name": "my_counter",
+      "from_stage": "synthesis",
+      "to_stage": "placement",
+      "tag": "explore"
+    },
+    "description": "Synthesis through placement experiment"
+  },
+  {
+    "tool": "pr_run_flow",
+    "args": {
+      "design_name": "ctrl_fsm",
+      "from_stage": "cts"
+    },
+    "description": "Resume from CTS"
+  },
+  {
+    "tool": "pr_read_reports",
+    "args": {
+      "design_name": "my_counter"
+    },
+    "description": "All signoff reports latest run"
+  },
+  {
+    "tool": "pr_read_reports",
+    "args": {
+      "design_name": "my_alu",
+      "report_type": "timing"
+    },
+    "description": "Timing only"
+  },
+  {
+    "tool": "pr_read_reports",
+    "args": {
+      "design_name": "my_counter",
+      "report_type": "area",
+      "tag": "v1"
+    },
+    "description": "Area for tagged run"
+  },
+  {
+    "tool": "pr_read_reports",
+    "args": {
+      "design_name": "my_counter",
+      "report_type": "drc"
+    },
+    "description": "DRC summary from OpenLane"
+  },
+  {
+    "tool": "pr_read_reports",
+    "args": {
+      "design_name": "my_counter",
+      "report_type": "power"
+    },
+    "description": "Power report excerpt"
+  },
+  {
+    "tool": "pr_export_gds",
+    "args": {
+      "design_name": "my_counter"
+    },
+    "description": "Export GDS for shuttle submission"
+  },
+  {
+    "tool": "pr_export_gds",
+    "args": {
+      "design_name": "my_counter",
+      "tag": "v1"
+    },
+    "description": "Export specific tagged GDS"
+  },
+  {
+    "tool": "pr_export_lef",
+    "args": {
+      "design_name": "my_counter"
+    },
+    "description": "Export LEF macro for hierarchy"
+  },
+  {
+    "tool": "verify_drc",
+    "args": {
+      "gds_file": "my_counter.gds"
+    },
+    "description": "DRC on exported counter GDS"
+  },
+  {
+    "tool": "verify_drc",
+    "args": {
+      "gds_file": "outputs/my_alu.gds",
+      "tech_file": "C:/Users/dev/.volare/sky130A/libs.tech/magic/sky130A.tech"
+    },
+    "description": "Explicit sky130 tech file"
+  },
+  {
+    "tool": "verify_lvs",
+    "args": {
+      "gds_file": "counter.gds",
+      "spice_netlist": "counter.spice"
+    },
+    "description": "LVS counter layout vs spice"
+  },
+  {
+    "tool": "verify_lvs",
+    "args": {
+      "gds_file": "my_design.gds",
+      "spice_netlist": "my_design.spice",
+      "top_cell": "my_design"
+    },
+    "description": "LVS with explicit top cell"
+  },
+  {
+    "tool": "verify_timing",
+    "args": {
+      "netlist": "counter_synth.v",
+      "sdc_file": "counter.sdc"
+    },
+    "description": "STA on synthesized counter"
+  },
+  {
+    "tool": "verify_timing",
+    "args": {
+      "netlist": "alu_synth.v",
+      "sdc_file": "alu.sdc",
+      "top_module": "alu"
+    },
+    "description": "STA with explicit top"
+  },
+  {
+    "tool": "verify_timing",
+    "args": {
+      "netlist": "counter_synth.v",
+      "sdc_file": "counter.sdc",
+      "liberty": "sky130_fd_sc_hd__tt_025C_1v80.lib",
+      "top_module": "counter"
+    },
+    "description": "STA with explicit liberty"
+  },
+  {
+    "tool": "verify_formal",
+    "args": {
+      "design_verilog": "counter_synth.v",
+      "reference_verilog": "counter.v"
+    },
+    "description": "RTL vs synth equivalence"
+  },
+  {
+    "tool": "verify_formal",
+    "args": {
+      "design_verilog": "alu_synth.v",
+      "reference_verilog": "alu_golden.v"
+    },
+    "description": "ALU formal check"
+  },
+  {
+    "tool": "verify_drc",
+    "args": {
+      "gds_file": "tt_um.gds"
+    },
+    "description": "Tapeout macro DRC"
+  },
+  {
+    "tool": "verify_lvs",
+    "args": {
+      "gds_file": "tt_um.gds",
+      "spice_netlist": "tt_um.spice",
+      "top_cell": "tt_um"
+    },
+    "description": "Tapeout LVS"
+  },
+  {
+    "tool": "verify_timing",
+    "args": {
+      "netlist": "fsm_synth.v",
+      "sdc_file": "fsm.sdc",
+      "top_module": "ctrl_fsm"
+    },
+    "description": "FSM timing"
+  },
+  {
+    "tool": "verify_drc",
+    "args": {
+      "gds_file": "failed_run.gds",
+      "tech_file": "/pdk/sky130A/libs.tech/magic/sky130A.tech"
+    },
+    "description": "Debug DRC after failed route"
+  },
+  {
+    "tool": "verify_formal",
+    "args": {
+      "design_verilog": "fsm_synth.v",
+      "reference_verilog": "fsm.v"
+    },
+    "description": "FSM equivalence"
+  },
+  {
+    "tool": "verify_timing",
+    "args": {
+      "netlist": "my_counter_synth.v",
+      "sdc_file": "my_counter.sdc"
+    },
+    "description": "Post-OpenLane netlist STA"
+  },
+  {
+    "tool": "verify_lvs",
+    "args": {
+      "gds_file": "macro.gds",
+      "spice_netlist": "extracted.spice"
+    },
+    "description": "Macro block LVS"
+  },
+  {
+    "tool": "cells_list",
+    "args": {
+      "pdk": "sky130"
+    },
+    "description": "List first 50 sky130 cells"
+  },
+  {
+    "tool": "cells_list",
+    "args": {
+      "pdk": "sky130",
+      "limit": 100
+    },
+    "description": "Extended sky130 cell list"
+  },
+  {
+    "tool": "cells_list",
+    "args": {
+      "pdk": "gf180mcu",
+      "limit": 30
+    },
+    "description": "GF180 cell sample"
+  },
+  {
+    "tool": "cells_list",
+    "args": {
+      "pdk": "ihp-sg13g2",
+      "limit": 25
+    },
+    "description": "IHP stdcell sample"
+  },
+  {
+    "tool": "cells_info",
+    "args": {
+      "cell_name": "sky130_fd_sc_hd__and2_1"
+    },
+    "description": "AND2 X1 pin info"
+  },
+  {
+    "tool": "cells_info",
+    "args": {
+      "cell_name": "sky130_fd_sc_hd__dfxtp_1",
+      "pdk": "sky130"
+    },
+    "description": "Flip-flop details"
+  },
+  {
+    "tool": "cells_info",
+    "args": {
+      "cell_name": "sky130_fd_sc_hd__nand2_2"
+    },
+    "description": "NAND2 drive strength 2"
+  },
+  {
+    "tool": "cells_search",
+    "args": {
+      "function": "nand",
+      "pdk": "sky130"
+    },
+    "description": "Find NAND variants"
+  },
+  {
+    "tool": "cells_search",
+    "args": {
+      "function": "dff",
+      "pdk": "sky130",
+      "limit": 20
+    },
+    "description": "Sequential cells for mapping"
+  },
+  {
+    "tool": "cells_search",
+    "args": {
+      "function": "mux",
+      "limit": 15
+    },
+    "description": "Mux cells"
+  },
+  {
+    "tool": "cells_search",
+    "args": {
+      "function": "buffer"
+    },
+    "description": "Buffer cells default sky130"
+  },
+  {
+    "tool": "cells_search",
+    "args": {
+      "function": "inverter",
+      "pdk": "sky130",
+      "limit": 10
+    },
+    "description": "Inverter drive options"
+  },
+  {
+    "tool": "cells_search",
+    "args": {
+      "function": "adder",
+      "pdk": "sky130"
+    },
+    "description": "Adder-related cells"
+  },
+  {
+    "tool": "cells_search",
+    "args": {
+      "function": "all",
+      "limit": 50
+    },
+    "description": "Broad cell browse"
+  },
+  {
+    "tool": "cells_stats",
+    "args": {
+      "pdk": "sky130"
+    },
+    "description": "Library composition sky130"
+  },
+  {
+    "tool": "cells_stats",
+    "args": {
+      "pdk": "gf180mcu"
+    },
+    "description": "GF180 library stats"
+  },
+  {
+    "tool": "depot_init",
+    "args": {
+      "project_name": "my_counter",
+      "template": "counter"
+    },
+    "description": "Scaffold counter project"
+  },
+  {
+    "tool": "depot_init",
+    "args": {
+      "project_name": "lab_alu",
+      "template": "alu",
+      "pdk": "sky130"
+    },
+    "description": "ALU template sky130"
+  },
+  {
+    "tool": "depot_init",
+    "args": {
+      "project_name": "ctrl_fsm",
+      "template": "fsm"
+    },
+    "description": "Three-state FSM template"
+  },
+  {
+    "tool": "depot_init",
+    "args": {
+      "project_name": "custom_core",
+      "template": "empty",
+      "pdk": "gf180mcu"
+    },
+    "description": "Blank GF180 project"
+  },
+  {
+    "tool": "depot_init",
+    "args": {
+      "project_name": "tt_um_counter",
+      "template": "counter",
+      "pdk": "sky130"
+    },
+    "description": "Tiny Tapeout naming convention"
+  },
+  {
+    "tool": "depot_list",
+    "args": {},
+    "description": "List all design projects"
+  },
+  {
+    "tool": "depot_list",
+    "args": {
+      "directory": "uploads"
+    },
+    "description": "List uploaded RTL files"
+  },
+  {
+    "tool": "depot_list",
+    "args": {
+      "directory": "outputs"
+    },
+    "description": "List synthesis/pr outputs"
+  },
+  {
+    "tool": "depot_list",
+    "args": {
+      "directory": "my_counter"
+    },
+    "description": "List files inside counter project"
+  },
+  {
+    "tool": "depot_status",
+    "args": {},
+    "description": "Depot storage statistics"
+  },
+  {
+    "tool": "depot_list",
+    "args": {
+      "directory": "designs"
+    },
+    "description": "Explicit designs root listing"
+  },
+  {
+    "tool": "depot_init",
+    "args": {
+      "project_name": "weekend_cpu",
+      "template": "empty"
+    },
+    "description": "Empty shell for custom CPU"
+  },
+  {
+    "tool": "chip_status",
+    "args": {},
+    "description": "Full server health and tool paths"
+  },
+  {
+    "tool": "chip_pipeline_stages",
+    "args": {},
+    "description": "Educational 11-stage pipeline"
+  },
+  {
+    "tool": "chip_available_pdks",
+    "args": {},
+    "description": "PDK install detection"
+  },
+  {
+    "tool": "chip_agentic",
+    "args": {
+      "operation": "status_summary"
+    },
+    "description": "Quick EDA snapshot via agentic"
+  },
+  {
+    "tool": "chip_agentic",
+    "args": {
+      "operation": "flow_plan",
+      "prompt": "Counter on sky130: sim then syn then OpenLane"
+    },
+    "description": "Plan full flow"
+  },
+  {
+    "tool": "chip_agentic",
+    "args": {
+      "operation": "natural_query",
+      "prompt": "Which tool runs DRC?"
+    },
+    "description": "Ask about DRC tool"
+  },
+  {
+    "tool": "chip_agentic",
+    "args": {
+      "operation": "natural_query",
+      "prompt": "Difference between abc and abc9 in syn_run?"
+    },
+    "description": "ABC technology mapping Q&A"
+  },
+  {
+    "tool": "chip_agentic",
+    "args": {
+      "operation": "flow_plan",
+      "prompt": "ALU combinational block simulation and synthesis only"
+    },
+    "description": "Short flow without P&R"
+  },
+  {
+    "tool": "show_chip_status_card",
+    "args": {},
+    "description": "In-chat EDA status card"
+  },
+  {
+    "tool": "show_pdks_card",
+    "args": {},
+    "description": "PDK install status card"
+  },
+  {
+    "tool": "show_pipeline_card",
+    "args": {},
+    "description": "Pipeline stages card"
+  },
+  {
+    "tool": "show_depot_card",
+    "args": {},
+    "description": "Depot storage card"
+  },
+  {
+    "tool": "show_cells_stats_card",
+    "args": {
+      "pdk": "sky130"
+    },
+    "description": "Sky130 cell stats card"
+  },
+  {
+    "tool": "show_cells_stats_card",
+    "args": {
+      "pdk": "gf180mcu"
+    },
+    "description": "GF180 stats card"
+  },
+  {
+    "tool": "show_cells_list_card",
+    "args": {
+      "pdk": "sky130",
+      "limit": 20
+    },
+    "description": "Cell list card"
+  },
+  {
+    "tool": "show_cells_list_card",
+    "args": {
+      "pdk": "sky130",
+      "limit": 50
+    },
+    "description": "Extended cell list card"
+  },
+  {
+    "tool": "show_cells_list_card",
+    "args": {
+      "pdk": "ihp-sg13g2",
+      "limit": 15
+    },
+    "description": "IHP cell preview card"
+  },
+  {
+    "tool": "show_pipeline_card",
+    "args": {},
+    "description": "Show pipeline to beginner user"
+  }
+]

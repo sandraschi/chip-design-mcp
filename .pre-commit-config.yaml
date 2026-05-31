@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: local
+    hooks:
+      - id: unicode-safety
+        name: No em dash in scripts (fleet)
+        entry: powershell.exe -NoProfile -ExecutionPolicy Bypass -File D:/Dev/repos/mcp-central-docs/scripts/check-unicode-safe.ps1 -RepoPath .
+        language: system
+        pass_filenames: false
+        always_run: true

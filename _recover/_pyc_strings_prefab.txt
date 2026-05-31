@@ -1,0 +1,283 @@
+
+Prefab UI MCP tools — in-chat rich cards for status / stats / list surfaces.
+
+Fleet mandate (SOTA §2.2): list / status / stats tools must have a Prefab
+surface. Rather than change the return type of the JSON tools (which the REST
+dispatcher serializes as dicts), these companion ``show_*`` App tools call the
+existing JSON tools via the shared ``all_tools`` registry and render the result
+as a PrefabApp. Plain-text hosts still get the JSON tools unchanged.
+
+Registered via register_prefab_tools(mcp, all_tools) — called from server.py
+after the full tool registry is assembled. Disable registration (only) with
+CHIP_DESIGN_MCP_PREFAB_APPS=0.
+
+---
+chip-design-mcp.prefab
+---
+n
+---
+return
+---
+TB
+---
+B
+---
+.0f
+---
+ 
+---
+.1f
+---
+ B
+---
+all_tools
+---
+Register Prefab App tools. `all_tools` is the assembled {name: async fn} registry.
+---
+return
+---
+Show EDA toolchain availability, PDK status, and server uptime as a status card.
+
+## Examples
+await show_chip_status_card()
+
+---
+chip_status
+---
+tools
+---
+pdk_installed
+---
+uptime_s
+---
+max-w-lg
+---
+Chip Design MCP — Status
+---
+/
+---
+ EDA tools available
+---
+text-sm text-muted-foreground
+---
+EDA tools
+---
+text-sm font-semibold mb-1
+---
+: 
+---
+OK
+---
+missing
+---
+secondary
+---
+PDK installed: 
+---
+yes
+---
+no
+---
+text-sm mt-2
+---
+pdk_root
+---
+PDK_ROOT: 
+---
+text-sm
+---
+Work dir: 
+---
+work_dir
+---
+?
+---
+Uptime: 
+---
+s
+---
+Show the supported PDKs (sky130 / gf180mcu / ihp-sg13g2) and install status.
+
+## Examples
+await show_pdks_card()
+
+---
+chip_available_pdks
+---
+pdks
+---
+max-w-lg
+---
+Available PDKs
+---
+PDK_ROOT: 
+---
+pdk_root
+---
+not set
+---
+text-sm text-muted-foreground
+---
+available
+---
+installed
+---
+not installed
+---
+name
+---
+ — 
+---
+node
+---
+ (
+---
+vendor
+---
+)
+---
+text-sm font-semibold mt-1
+---
+secondary
+---
+available
+---
+Install: pip install volare && volare enable --pdk sky130 0bbdd5
+---
+text-sm mt-2
+---
+Show the 11-stage RTL-to-GDSII ASIC pipeline with tool assignments.
+
+## Examples
+await show_pipeline_card()
+
+---
+chip_pipeline_stages
+---
+stages
+---
+max-w-lg
+---
+ASIC Pipeline — RTL to GDSII
+---
+ stages
+---
+text-sm text-muted-foreground
+---
+stage
+---
+ · 
+---
+tool
+---
+text-sm font-semibold mt-1
+---
+input
+---
+ → 
+---
+output
+---
+ASIC Pipeline
+---
+Show depot storage stats: project / upload / output file counts and sizes.
+
+## Examples
+await show_depot_card()
+
+---
+depot_status
+---
+data
+---
+max-w-lg
+---
+Depot — Storage
+---
+total_files
+---
+ files · 
+---
+total_size_bytes
+---
+text-sm text-muted-foreground
+---
+: 
+---
+files
+---
+size_bytes
+---
+text-sm
+---
+pdk
+---
+Show standard-cell library statistics (counts by logic function) for a PDK.
+
+## Examples
+await show_cells_stats_card(pdk="sky130")
+
+---
+cells_stats
+---
+data
+---
+total_cells
+---
+by_function
+---
+max-w-lg
+---
+Standard Cells — 
+---
+ cells
+---
+text-sm text-muted-foreground
+---
+No cells found. Set PDK_ROOT or install via volare.
+---
+text-sm
+---
+volare enable --pdk sky130 0bbdd5
+---
+text-sm mt-1
+---
+: 
+---
+secondary
+---
+limit
+---
+List standard cells in a PDK as a card (name + classified function).
+
+## Examples
+await show_cells_list_card(pdk="sky130", limit=20)
+
+---
+cells_list
+---
+data
+---
+cells
+---
+max-w-lg
+---
+Cells — 
+---
+showing 
+---
+text-sm text-muted-foreground
+---
+No cells found. Set PDK_ROOT or install via volare.
+---
+text-sm
+---
+name
+---
+text-sm font-mono
+---
+function
+---
+
+---
+Registered %d Prefab App tools

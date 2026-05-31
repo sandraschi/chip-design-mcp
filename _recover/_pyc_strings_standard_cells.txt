@@ -1,0 +1,201 @@
+
+Standard Cells MCP tools — PDK library browsing and cell information.
+
+Provides standard cell listing, detail lookup, search by function,
+and library statistics.
+
+Registered via register_standard_cells_tools(mcp, **deps) — called from server.py.
+
+---
+chip-design-mcp.standard_cells
+---
+readonly
+---
+state
+---
+Register all Standard Cells MCP tools on the FastMCP instance.
+---
+0.1.0
+---
+pdk
+---
+PDK name: sky130, gf180mcu, or ihp-sg13g2.
+---
+limit
+---
+Max cells to return.
+---
+return
+---
+List standard cells available in a PDK.
+
+## Return Format
+{"success": bool, "data": {"pdk": str, "cells": [{"name": str, "function": str}, ...], "total": int}}
+
+## Examples
+await cells_list(pdk="sky130")
+await cells_list(pdk="gf180mcu", limit=100)
+
+---
+PDK_ROOT
+---
+
+---
+PDK_ROOT not set. Set PDK_ROOT to ~/.volare or install via volare.
+---
+Install PDKs: pip install volare && volare enable --pdk sky130 0bbdd5
+---
+sky130A/libs.ref/sky130_fd_sc_hd/verilog
+---
+gf180mcuA/libs.ref/gf180mcu_fd_sc_mcu7t5v0/verilog
+---
+ihp-sg13g2/libs.ref/sg13g2_stdcell/verilog
+---
+.v
+---
+cell_name
+---
+Standard cell name (e.g. 'sky130_fd_sc_hd__and2_1').
+---
+PDK name.
+---
+Get detailed information about a specific standard cell.
+
+## Return Format
+{"success": bool, "data": {"name": str, "function": str, "drive_strength": str, "pins": [str, ...]}}
+
+## Examples
+await cells_info(cell_name="sky130_fd_sc_hd__and2_1")
+await cells_info(cell_name="sky130_fd_sc_hd__nand2_2")
+
+---
+PDK_ROOT
+---
+
+---
+sky130A/libs.ref/sky130_fd_sc_hd/verilog/
+---
+.v
+---
+\b(input|output|inout)\s+(?:\[\d+:\d+\]\s+)?(\w+)
+---
+function
+---
+Function to search: buffer, inverter, and, or, nand, nor, xor, mux, dff, latch, adder, all.
+---
+Max results.
+---
+Search standard cells by logic function.
+
+## Return Format
+{"success": bool, "data": {"function": str, "cells": [{"name": str, "drive": str}, ...], "count": int}}
+
+## Examples
+await cells_search(function="nand")
+await cells_search(function="dff", pdk="sky130", limit=20)
+
+---
+PDK_ROOT
+---
+
+---
+sky130A/libs.ref/sky130_fd_sc_hd/verilog
+---
+gf180mcuA/libs.ref/gf180mcu_fd_sc_mcu7t5v0/verilog
+---
+.v
+---
+all
+---
+Get aggregate statistics about a standard cell library.
+
+## Return Format
+{"success": bool, "data": {"total_cells": int, "by_function": dict, "pdk": str}}
+
+## Examples
+await cells_stats(pdk="sky130")
+
+---
+success
+---
+data
+---
+cells
+---
+function
+---
+unknown
+---
+name
+---
+return
+---
+Classify a standard cell by name pattern.
+---
+buf
+---
+inv
+---
+buffer
+---
+not
+---
+inverter
+---
+nand
+---
+nor
+---
+xor
+---
+xnor
+---
+and
+---
+or
+---
+mux
+---
+dff
+---
+latch
+---
+dlat
+---
+half
+---
+add
+---
+adder
+---
+full
+---
+fa
+---
+_
+---
+ha
+---
+tie
+---
+fill
+---
+filler
+---
+tap
+---
+diode
+---
+conb
+---
+constant
+---
+combinational
+---
+Extract drive strength from cell name.
+---
+_
+---
+X
+---
+X1

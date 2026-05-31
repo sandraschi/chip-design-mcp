@@ -1,0 +1,204 @@
+
+Simulation MCP tools — cocotb + iverilog testbench management.
+
+Provides testbench discovery, execution, waveform reading, and coverage checking.
+
+Registered via register_simulation_tools(mcp, **deps) — called from server.py.
+
+---
+chip-design-mcp.simulation
+---
+readonly
+---
+state
+---
+work_dir
+---
+output_dir
+---
+upload_dir
+---
+Register all Simulation MCP tools on the FastMCP instance.
+---
+0.1.0
+---
+test_dir
+---
+Path to cocotb test directory (e.g. 'tests/').
+---
+return
+---
+List available cocotb testbenches in a directory.
+
+## Return Format
+{"success": bool, "data": {"tests": [{"file": str, "test_name": str}, ...]}}
+
+## Examples
+await sim_list_tests()
+await sim_list_tests(test_dir="my_design/tests")
+
+---
+test_
+---
+.py
+---
+dut_file
+---
+Verilog DUT filename in uploads directory.
+---
+test_module
+---
+cocotb test module name (e.g. 'test_counter').
+---
+top_module
+---
+Top-level Verilog module name.
+---
+waves
+---
+Enable VCD waveform dumping.
+---
+extra_args
+---
+Additional iverilog compile args (e.g. '-g2012 -Wall').
+---
+Run a cocotb testbench against a Verilog DUT.
+
+## Return Format
+{"success": bool, "message": str, "data": {"passed": int, "failed": int, "waveform": str | None, "stdout": str}}
+
+## Examples
+await sim_run_testbench(dut_file="counter.v", test_module="test_counter")
+await sim_run_testbench(dut_file="alu.v", test_module="test_alu", waves=False)
+
+---
+DUT file not found: 
+---
+tools
+---
+cocotb_config
+---
+iverilog
+---
+vvp
+---
+iverilog not found. Install iverilog.
+---
+sim_
+---
+-o
+---
+.vvp
+---
+-s
+---
+success
+---
+iverilog compilation failed
+---
+stderr
+---
+stdout
+---
++WAVES=
+---
+ON
+---
+OFF
+---
+-M
+---
+
+---
+/..
+---
+.
+---
+.vcd
+---
+PASS
+---
+FAIL
+---
+Testbench 
+---
+passed
+---
+failed
+---
+vcd_file
+---
+Path to VCD waveform file.
+---
+signals
+---
+Comma-separated signal names to extract (empty = list all).
+---
+start_time
+---
+Start time in simulation units (0 = beginning).
+---
+end_time
+---
+End time in simulation units (0 = all).
+---
+Read VCD waveform data and extract signal transitions.
+
+## Return Format
+{"success": bool, "data": {"signals": [str, ...], "timescale": str, "transitions": [...]}}
+
+## Examples
+await sim_read_waveform(vcd_file="counter.vcd")
+await sim_read_waveform(vcd_file="alu.vcd", signals="clk,rst,result")
+
+---
+VCD file not found: 
+---
+,
+---
+1ns
+---
+
+
+---
+$var
+---
+end
+---
+signals
+---
+$timescale
+---
+Waveform parsed: 
+---
+ signals found
+---
+Directory with cocotb tests.
+---
+Check test coverage by scanning cocotb test files for covered scenarios.
+
+## Return Format
+{"success": bool, "data": {"total_tests": int, "tests": [...], "coverage_hint": str}}
+
+## Examples
+await sim_check_coverage()
+
+---
+test_
+---
+.py
+---
+
+
+---
+async def test_
+---
+def test_
+---
+@cocotb.test
+---
+test_functions
+---
+ test functions across 
+---
+ files. Run sim_run_testbench to get pass/fail results.
