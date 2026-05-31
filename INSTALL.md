@@ -1,8 +1,16 @@
 # Chip Design MCP — Installation
 
-## Quick start (naked PC)
+## Quick start (naked PC, fully automated)
 
-Only **git** and **winget** (Windows 10 1809+ / Windows 11) are assumed. Everything else is installed by the launcher.
+Only **git** and **winget** are assumed. `start.bat` installs everything else:
+
+| Step | What gets installed |
+|------|---------------------|
+| 1 | **uv**, **just**, **Node.js**, **npm** (winget) |
+| 2 | Python deps + **volare**, **cocotb** (`uv sync --extra eda`) |
+| 3 | **EDA**: Docker Desktop + OpenLane image, **WSL Ubuntu** + `apt` yosys/iverilog/magic/netgen, **sky130 PDK** via volare |
+| 4 | Frontend (bun or npm) |
+| 5–6 | Backend :11022 + webapp :11023 |
 
 ```powershell
 git clone https://github.com/sandraschi/chip-design-mcp.git
@@ -10,55 +18,49 @@ cd chip-design-mcp
 .\start.bat
 ```
 
-Launchers (repo root):
+First run may take a long time (Docker image ~3 GB, PDK ~500 MB, WSL apt). **Reboot once** if winget installs WSL or Docker for the first time, then run `.\start.bat` again.
+
+### Skip flags
+
+| Env / flag | Effect |
+|------------|--------|
+| `SKIP_SYNC=1` | Skip `uv sync` |
+| `SKIP_EDA_INSTALL=1` | Skip step 3 (MCP + webapp only; tools report "not found") |
+| `-BackendOnly` | No frontend |
+| `-NoBrowser` | Do not open browser |
+
+Manual EDA only: `just install-eda` or `.\scripts\install-eda.ps1 -RepoRoot . -UvExe (Get-Command uv).Source`
+
+## Launchers
 
 | File | Role |
 |------|------|
-| `start.bat` (repo root) | Delegates to `webapp\start.ps1` (double-click from clone root) |
-| `webapp/start.bat` | Same launcher, run from `webapp/` |
-| `webapp/start.ps1` | Canonical naked-PC script: winget bootstrap, `uv sync`, frontend install, health poll, browser |
+| `start.bat` (repo root) | Delegates to `webapp\start.ps1` |
+| `webapp/start.ps1` | Canonical naked-PC script |
 
-Flags: `.\start.bat -BackendOnly` · `.\start.bat -NoBrowser` · `.\start.bat -Headless`
+## How tools are invoked (not fake)
 
-## Global vs local tools
+At startup the server **probes PATH** for yosys, iverilog, docker, magic, netgen, opensta, volare. Tools call real subprocesses via `_run_eda()` or Docker OpenLane (`ghcr.io/the-openroad-project/openlane:latest`). Missing binaries return **`success: false`** with an install hint — not simulated results.
 
-| Tool | Where it lives | How you get it |
-|------|----------------|----------------|
-| Python | uv cache / `.venv` | `uv sync` (no separate Python install) |
-| vite, tsc | `webapp/node_modules/.bin/` | `bun install` or `npm install` via `start.ps1` |
-| ruff, pytest | `.venv/Scripts/` | `uv sync --all-extras` |
-| Bun (optional) | PATH if already installed | Used when present; otherwise npm |
-| yosys, OpenLane, … | OS / Docker / WSL | Optional — server runs without them |
+On Windows, step 3 adds **`bin/*.cmd` shims** that forward to WSL for native EDA CLIs so `where yosys` works from PowerShell.
 
-## Manual setup (when `start.bat` fails)
+## MCP client
 
-1. Install via winget: `Astral.uv`, `OpenJS.NodeJS.LTS`, `Casey.Just`
-2. `uv sync --all-extras` from repo root
-3. `cd webapp` → `bun install` or `npm install`
-4. Backend: `uv run python -m chip_design_mcp.server --mode dual --port 11022`
-5. Frontend: `cd webapp` → `bun run dev` or `npm run dev` (port **11023**)
+```powershell
+.\install-mcp.ps1 print
+.\install-mcp.ps1 cursor
+```
 
-MCP client: `.\install-mcp.ps1 print` then `.\install-mcp.ps1 cursor` (or your client).
-
-## Optional prerequisites
-
-- Git (clone)
-- Docker (OpenLane flows)
-- EDA binaries: yosys, iverilog, gtkwave, magic, netgen (Linux/macOS/WSL)
-- PDK: `pip install volare` then `volare enable --pdk sky130 0bbdd5`
-
-## Tool Discovery
-
-The server auto-discovers EDA tools from PATH at startup. Check with:
+## Diagnostics
 
 ```powershell
 just yosys-check
-just openlane-check
-just cocotb-check
+just docker-check
+just pdk-check
 ```
 
-## Without EDA Tools
+Or `chip_status` / webapp **Status** page after start.
 
-The server runs without any EDA tools installed — discovery simply reports
-"not found" and simulation/synthesis tools return appropriate error messages.
-All non-EDA tools (depot, cells info, status) work regardless.
+## Without full EDA (dev / docs only)
+
+Set `SKIP_EDA_INSTALL=1`. Server and depot/help tools still work; synthesis/sim/P&R return truthful "not found" errors.

@@ -15,7 +15,8 @@ subprocesses and exposes them as MCP tools + a REST surface.
 ## Run / test
 
 ```powershell
-just bootstrap          # uv sync --all-extras + npm install
+just bootstrap          # uv sync --all-extras --extra eda + webapp install
+just install-eda        # Docker + WSL yosys + volare sky130 (also run from start.ps1 step 3)
 just serve              # backend on 11022
 just web                # webapp on 11023
 .\start.bat             # both + browser

@@ -1,8 +1,14 @@
 # Chip Design MCP — Setup Guide
 
-## Prerequisites
+## Automated install (Windows)
 
-### EDA Tools (Required for any RTL-to-GDS work)
+**Default:** run `.\start.bat` from the repo root. See [INSTALL.md](../INSTALL.md) — step 3 runs `scripts/install-eda.ps1` (Docker OpenLane, WSL apt packages, volare sky130). No manual steps for naked-PC users.
+
+## Manual / Linux / macOS (optional)
+
+Use this section only when not using the Windows launcher, or to install extra tools (e.g. gtkwave).
+
+### EDA Tools
 
 ```bash
 # Ubuntu / Debian / WSL
@@ -12,10 +18,8 @@ sudo apt install -y yosys iverilog gtkwave magic netgen
 # macOS
 brew install yosys icarus-verilog gtkwave magic netgen
 
-# Verify
-yosys -V          # Should print version (e.g., Yosys 0.47)
-iverilog -V       # Should print version
-magic --version   # Should print version
+yosys -V
+iverilog -V
 ```
 
 ### cocotb (Python Verification Framework, Required)

@@ -19,6 +19,8 @@ _dashboard/
 *.vpd
 *.evcd
 build/
+bin/*.cmd
+bin/*.exe
 backend.log
 backend.err.log
 pycdc.exe

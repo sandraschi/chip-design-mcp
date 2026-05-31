@@ -21,6 +21,10 @@ dev = [
     "pre-commit>=4.0",
     "ty>=0.0.1a25",
 ]
+eda = [
+    "volare>=0.15",
+    "cocotb>=1.9",
+]
 
 [build-system]
 requires = ["hatchling"]

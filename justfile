@@ -14,7 +14,7 @@ default:
 # -- Lifecycle ----------------------------------------------------------------
 
 bootstrap:
-    uv sync --all-extras
+    uv sync --all-extras --extra eda
     Set-Location '{{justfile_directory()}}\webapp'
     if (Get-Command bun -ErrorAction SilentlyContinue) { bun install } else { cmd /c npm install }
 
@@ -87,11 +87,17 @@ health:
 
 # -- Chip Design Flow ---------------------------------------------------------
 
+install-eda:
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{{justfile_directory()}}\scripts\install-eda.ps1" -RepoRoot "{{justfile_directory()}}" -UvExe (Get-Command uv).Source
+
 yosys-check:
-    uv run python -c "from chip_design_mcp.server import _find_executable; print(_find_executable('yosys') or 'NOT FOUND')"
+    uv run python -c "from chip_design_mcp.server import _probe_sync; print('yosys:', _probe_sync('yosys'))"
 
 openlane-check:
-    uv run python -c "from chip_design_mcp.server import _find_executable; print(_find_executable('openlane') or 'NOT FOUND')"
+    uv run python -c "from chip_design_mcp.server import _probe_sync; print('docker:', _probe_sync('docker'))"
 
-cocotb-check:
-    uv run python -c "from chip_design_mcp.server import _find_executable; print(_find_executable('cocotb-config') or 'NOT FOUND')"
+docker-check:
+    uv run python -c "from chip_design_mcp.server import _probe_sync; print('docker:', _probe_sync('docker'))"
+
+pdk-check:
+    uv run python -c "import os; print('PDK_ROOT=', os.environ.get('PDK_ROOT','(unset)'))"

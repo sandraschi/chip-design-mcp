@@ -105,7 +105,7 @@ function Test-ViteBinPresent {
 # ===========================================================================
 # STEP 1 - Prerequisites
 # ===========================================================================
-Write-Host "[1/5] Checking prerequisites ..." -ForegroundColor Cyan
+Write-Host "[1/6] Checking prerequisites ..." -ForegroundColor Cyan
 Require-Command "uv"   "Astral.uv"          "uv (Python package manager)"
 Require-Command "just" "Casey.Just"         "just (command runner)"
 if (-not $BackendOnly) {
@@ -118,10 +118,10 @@ if (-not $BackendOnly) {
 # ===========================================================================
 $uvExe = (Get-Command uv).Source
 if ($env:SKIP_SYNC -eq "1") {
-    Write-Host "[2/5] Skipping Python deps (SKIP_SYNC=1)" -ForegroundColor DarkGray
+    Write-Host "[2/6] Skipping Python deps (SKIP_SYNC=1)" -ForegroundColor DarkGray
 } else {
-    Write-Host "[2/5] Syncing Python deps (uv sync --all-extras) ..." -ForegroundColor Cyan
-    & $uvExe sync --all-extras --project $RepoRoot
+    Write-Host "[2/6] Syncing Python deps (uv sync --all-extras --extra eda) ..." -ForegroundColor Cyan
+    & $uvExe sync --all-extras --extra eda --project $RepoRoot
     if ($LASTEXITCODE -ne 0) {
         Write-Host "ERROR: uv sync failed." -ForegroundColor Red
         exit 1
@@ -147,15 +147,41 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # ===========================================================================
-# STEP 3 - Frontend deps + vite guard
+# STEP 3 - EDA toolchain (yosys, Docker/OpenLane, volare PDK)
+# ===========================================================================
+$binDir = Join-Path $RepoRoot 'bin'
+if (Test-Path -LiteralPath $binDir) {
+    $env:PATH = "$binDir;" + $env:PATH
+}
+if ($env:SKIP_EDA_INSTALL -eq "1") {
+    Write-Host "[3/6] Skipping EDA install (SKIP_EDA_INSTALL=1)" -ForegroundColor DarkGray
+} else {
+    Write-Host "[3/6] EDA toolchain (Docker, WSL yosys, volare sky130) ..." -ForegroundColor Cyan
+    $installEda = Join-Path $RepoRoot 'scripts\install-eda.ps1'
+    if (-not (Test-Path -LiteralPath $installEda)) {
+        Write-Host "ERROR: missing $installEda" -ForegroundColor Red
+        exit 1
+    }
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installEda -RepoRoot $RepoRoot -UvExe $uvExe
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "ERROR: EDA bootstrap failed. Fix Docker/WSL/winget, or set SKIP_EDA_INSTALL=1 for MCP-only." -ForegroundColor Red
+        exit 1
+    }
+    if (Test-Path -LiteralPath $binDir) {
+        $env:PATH = "$binDir;" + $env:PATH
+    }
+}
+
+# ===========================================================================
+# STEP 4 - Frontend deps + vite guard
 # ===========================================================================
 if (-not $BackendOnly) {
     $bunExe = Get-BunExePath
     $useBun = [bool]$bunExe
     if ($useBun) {
-        Write-Host "[3/5] Syncing frontend deps (bun install) ..." -ForegroundColor Cyan
+        Write-Host "[4/6] Syncing frontend deps (bun install) ..." -ForegroundColor Cyan
     } else {
-        Write-Host "[3/5] Syncing frontend deps (npm install - Bun not found) ..." -ForegroundColor Cyan
+        Write-Host "[4/6] Syncing frontend deps (npm install - Bun not found) ..." -ForegroundColor Cyan
     }
     $npmCmd = Get-NpmCmdPath
     if (-not $useBun -and -not $npmCmd) {
@@ -198,7 +224,7 @@ if (-not $BackendOnly) {
 # ===========================================================================
 # STEP 4 - Clear ports
 # ===========================================================================
-Write-Host "[4/5] Clearing ports $BackendPort / $FrontendPort ..." -ForegroundColor Cyan
+Write-Host "[5/6] Clearing ports $BackendPort / $FrontendPort ..." -ForegroundColor Cyan
 foreach ($port in @($BackendPort, $FrontendPort)) {
     $conns = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
     foreach ($conn in $conns) {
@@ -213,7 +239,7 @@ Start-Sleep -Milliseconds 500
 # ===========================================================================
 # STEP 5 - Start services
 # ===========================================================================
-Write-Host "[5/5] Starting services ..." -ForegroundColor Cyan
+Write-Host "[6/6] Starting services ..." -ForegroundColor Cyan
 
 $backendLog = Join-Path $RepoRoot "backend.log"
 $backendErr = Join-Path $RepoRoot "backend.err.log"
