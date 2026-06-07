@@ -1,4 +1,4 @@
-set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
+﻿set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
 
 export NAME := "Chip Design MCP"
 export DESC := "Open-source ASIC/VLSI design automation via MCP tools and REST API"
@@ -9,7 +9,7 @@ export HOST := "0.0.0.0"
 # -- Project Configuration -----------------------------------------------------
 
 default:
-    @powershell.exe -NoProfile -ExecutionPolicy Bypass -File ../mcp-central-docs/scripts/just-dashboard.ps1 -Path .
+    @just --list
 
 # -- Lifecycle ----------------------------------------------------------------
 
@@ -70,6 +70,14 @@ precommit:
 install-mcp client="print":
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{{justfile_directory()}}\install-mcp.ps1" {{client}}
 
+build-native:
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{{justfile_directory()}}\native\build.ps1"
+
+build-native-debug:
+    Set-Location '{{justfile_directory()}}\native'
+    $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
+    npx @tauri-apps/cli build --debug
+
 mcpb-pack:
     $ver = (Get-Content pyproject.toml | Select-String '^version = "(.*)"' | ForEach-Object { $_.Matches.Groups[1].Value })
     $null = New-Item -ItemType Directory -Path dist -Force
@@ -106,3 +114,4 @@ docker-check:
 
 pdk-check:
     uv run python -c "import os; print('PDK_ROOT=', os.environ.get('PDK_ROOT','(unset)'))"
+
