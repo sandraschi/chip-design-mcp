@@ -1,0 +1,59 @@
+{
+  "productName": "Chip Design MCP",
+  "version": "0.1.0",
+  "identifier": "ai.fleet.chip-design-mcp",
+  "build": {
+    "frontendDist": "../webapp/dist",
+    "devUrl": "http://localhost:11023",
+    "beforeDevCommand": "npm --prefix ../webapp run dev"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Chip Design MCP",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin": [
+      "binaries/chip-design-mcp-backend"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "skip"
+      },
+      "nsis": {
+        "installerHooks": "./windows/hooks.nsh"
+      }
+    }
+  },
+  "plugins": {
+    "shell": {
+      "open": true
+    },
+    "fs": {
+      "requireLiteralLeadingDot": false
+    },
+    "process": {
+      "all": true
+    }
+  }
+}

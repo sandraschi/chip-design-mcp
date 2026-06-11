@@ -109,7 +109,8 @@ quit -noprompt
                     violations = max(violations, int(nums[-1]))
         return {
             "success": result.get("success", False),
-            "message": f"DRC complete: {violations} potential violations found",
+            "message": result.get("message", f"DRC complete: {violations} potential violations found"),
+            "next_steps": result.get("next_steps", []),
             "data": {"violations": violations, "report": stdout[:8000], "report_file": report_file},
         }
 
@@ -219,7 +220,8 @@ exit
             tns = float(tns_m.group(1))
         return {
             "success": result.get("success", False),
-            "message": f"STA complete. WNS={wns} TNS={tns}",
+            "message": result.get("message", f"STA complete. WNS={wns} TNS={tns}"),
+            "next_steps": result.get("next_steps", []),
             "data": {
                 "wns": wns,
                 "tns": tns,

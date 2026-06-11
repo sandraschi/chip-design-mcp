@@ -2,6 +2,18 @@
 
 **Canonical operator guide** (the part of the superyacht magazine where they let you touch the helm). Read [docs/DREAMING_IN_SILICON.md](docs/DREAMING_IN_SILICON.md) first if you want warnings and context. Product scope: [docs/PRD.md](docs/PRD.md). Changes: [CHANGELOG.md](CHANGELOG.md).
 
+## Windows desktop installer (no git, no Python)
+
+Double-click **`dist/chip-design-mcp-v0.1.0-x64-setup.exe`** after building or downloading from [GitHub Releases](https://github.com/sandraschi/chip-design-mcp/releases). One NSIS installer bundles the WebView2 shell, React dashboard, and PyInstaller backend on **:11022**.
+
+Rebuild locally:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File native\build.ps1
+```
+
+Output: `dist/chip-design-mcp-v0.1.0-x64-setup.exe` (and intermediate `native/target/release/bundle/nsis/`). EDA tools (Yosys, Docker, sky130) are **not** inside the installer — install separately or use the full `start.bat` flow.
+
 ## Quick start (naked PC, fully automated)
 
 Only **git** and **winget** are assumed. `start.bat` installs everything else:

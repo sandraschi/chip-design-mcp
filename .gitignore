@@ -7,6 +7,12 @@ node_modules/
 package-lock.json
 *.bak
 dist/
+!dist/*.exe
+!dist/*.mcpb
+native/binaries/
+native/target/
+native/gen/
+native/node_modules/
 .vite/
 htmlcov/
 .coverage
