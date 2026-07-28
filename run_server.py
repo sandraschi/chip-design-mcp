@@ -1,4 +1,5 @@
 """Entry point for PyInstaller-bundled server."""
+import _strptime  # noqa: F401 -- PyInstaller must bundle this eagerly
 import os
 import sys
 
@@ -11,3 +12,4 @@ if getattr(sys, "frozen", False):
 from chip_design_mcp.server import main
 
 main()
+

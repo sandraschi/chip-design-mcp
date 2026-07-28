@@ -1,48 +1,25 @@
-# MCPB bundle exclusions (fleet MCPB_PACKAGING_STANDARDS)
-
+# Logic/Dev Bloat
 .venv/
+node_modules/
 __pycache__/
-*.pyc
 .ruff_cache/
 .pytest_cache/
-.ty_cache/
-htmlcov/
-
-# Web dashboard is installed via start.bat / clone — not inside Claude .mcpb
-webapp/
-
-# Recovery and dev-only trees
-_recover/
-scripts/
 tests/
-docs/
-.github/
-.cursor/
-.windsurf/
-.vscode/
 
-# Fleet/discovery metadata
+# Discovery & Fleet Metadata
 glama.json
 llms.txt
 llms-full.txt
+.git/
+.github/
+.vscode/
 
-# Dev tooling
-justfile
-.pre-commit-config.yaml
-uv.lock
-install-mcp.ps1
-start.bat
-start.ps1
-AGENTS.md
-INSTALL.md
-CHANGELOG.md
-
-# Build artifacts
+# Build Artifacts
 dist/
 build/
 *.mcpb
-*.log
 
-# Large / local EDA paths
-bin/
-data/
+# Non-MCP components (webapp, native, scripts)
+native/
+web_sota/
+scripts/

@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.DEV ? '' : 'http://127.0.0.1:11022';
+export const API_BASE = import.meta.env.DEV ? '' : 'http://127.0.0.1:11022';
 
 export async function apiGet<T = Record<string, unknown>>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`);

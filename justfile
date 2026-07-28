@@ -1,4 +1,5 @@
-﻿set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
+set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
+import 'scripts/just/fleet.just'
 
 export NAME := "Chip Design MCP"
 export DESC := "Open-source ASIC/VLSI design automation via MCP tools and REST API"
@@ -78,13 +79,6 @@ build-native-debug:
     $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
     npx @tauri-apps/cli build --debug
 
-mcpb-pack:
-    $ver = (Get-Content pyproject.toml | Select-String '^version = "(.*)"' | ForEach-Object { $_.Matches.Groups[1].Value })
-    $null = New-Item -ItemType Directory -Path dist -Force
-    npx --yes @anthropic-ai/mcpb@latest validate .
-    npx --yes @anthropic-ai/mcpb@latest pack . "dist/chip-design-mcp-v$ver.mcpb"
-    Write-Host "Created dist/chip-design-mcp-v$ver.mcpb" -ForegroundColor Green
-
 # -- Testing ------------------------------------------------------------------
 
 test:
@@ -114,4 +108,3 @@ docker-check:
 
 pdk-check:
     uv run python -c "import os; print('PDK_ROOT=', os.environ.get('PDK_ROOT','(unset)'))"
-

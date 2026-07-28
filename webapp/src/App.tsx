@@ -5,6 +5,7 @@ import ChiplabPage from './pages/ChiplabPage';
 import Dashboard from './pages/Dashboard';
 import DepotPage from './pages/DepotPage';
 import HelpPage from './pages/HelpPage';
+import LogsPage from './pages/LogsPage';
 import PlaceRoutePage from './pages/PlaceRoutePage';
 import SimulationPage from './pages/SimulationPage';
 import StatusPage from './pages/StatusPage';
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/depot" element={<DepotPage />} />
         <Route path="/chiplab" element={<ChiplabPage />} />
         <Route path="/help" element={<HelpPage />} />
+        <Route path="/logs" element={<LogsPage />} />
         <Route path="/status" element={<StatusPage />} />
       </Routes>
     </AppLayout>

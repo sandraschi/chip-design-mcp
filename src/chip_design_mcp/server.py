@@ -28,6 +28,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastmcp import FastMCP
 
 from chip_design_mcp import __version__
+from chip_design_mcp.activity_log import ActivityLog, create_log_router
 from chip_design_mcp.chiplab import PIPELINE_STAGES, ChiplabManager
 from chip_design_mcp.prompts_resources import register_prompts_and_resources
 from chip_design_mcp.tools import (
@@ -253,13 +254,25 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+_chip_tauri = os.environ.get("CHIP_TAURI", "").lower() in ("1", "true", "yes")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://127.0.0.1:11022",
+        "http://localhost:11022",
+        "http://goliath:11022",
+        "http://tauri.localhost",
+        "https://tauri.localhost",
+        "tauri://localhost",
+    ],
+    allow_origin_regex=r"https?://tauri\.localhost(:\d+)?" if _chip_tauri else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+mcp_log = ActivityLog()
+app.include_router(create_log_router(mcp_log), prefix="/api")
 
 mcp = FastMCP.from_fastapi(app, name="Chip Design MCP")
 
@@ -428,6 +441,25 @@ async def api_status():
         "pdk_root": os.environ.get("PDK_ROOT"),
         "work_dir": WORK_DIR,
         "uptime_s": int(time.time() - _START_TIME),
+    }
+
+
+@app.get("/api/v1/diagnostics")
+async def api_diagnostics():
+    try:
+        import psutil
+
+        cpu = psutil.cpu_percent()
+        mem = psutil.virtual_memory().percent
+        disk = psutil.disk_usage("/").percent
+    except ImportError:
+        cpu = mem = disk = None
+    return {
+        "success": True,
+        "backend": {"port": 11022, "status": "running", "uptime": int(time.time() - _START_TIME)},
+        "system": {"cpu_percent": cpu, "memory_percent": mem, "disk_percent": disk},
+        "tools": {"total": len(_all_tools), "names": sorted(_all_tools.keys())},
+        "cua_status": {"tesseract_available": False, "window_found": False},
     }
 
 

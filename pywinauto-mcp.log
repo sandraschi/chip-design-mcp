@@ -1,0 +1,30 @@
+2026-06-14 17:53:40,052 [INFO] pywinauto_mcp.app: Successfully imported FastMCP
+2026-06-14 17:53:40,059 [INFO] pywinauto_mcp.app: FastMCP 3.2.0 app instance created successfully
+2026-06-14 17:53:40,592 [INFO] pywinauto_mcp.app: OCR dependencies available
+2026-06-14 17:53:40,598 [INFO] pywinauto_mcp.main: Successfully imported FastMCP app instance
+2026-06-14 17:53:40,599 [INFO] pywinauto_mcp.tools: Successfully imported FastMCP app instance
+2026-06-14 17:53:40,600 [INFO] pywinauto_mcp.tools: automation_face not registered (opt-in). Set PYWINAUTO_MCP_ENABLE_FACE=1 and install the face extra to enable.
+2026-06-14 17:53:40,600 [INFO] pywinauto_mcp.tools: global_keylogger not registered (opt-in). Set PYWINAUTO_MCP_ENABLE_KEYLOGGER=1 to enable.
+2026-06-14 17:53:40,631 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_windows
+2026-06-14 17:53:40,640 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_elements
+2026-06-14 17:53:40,645 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_mouse
+2026-06-14 17:53:40,650 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_keyboard
+2026-06-14 17:53:40,687 [INFO] pywinauto_mcp.tools.portmanteau_visual: Successfully imported FastMCP app instance in portmanteau_visual
+2026-06-14 17:53:40,688 [INFO] pywinauto_mcp.tools.portmanteau_visual: Registering portmanteau_visual tool with FastMCP
+2026-06-14 17:53:40,693 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_visual
+2026-06-14 17:53:40,700 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_assert
+2026-06-14 17:53:40,855 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_dialog
+2026-06-14 17:53:40,863 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_shortcut
+2026-06-14 17:53:40,897 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_task
+2026-06-14 17:53:40,899 [INFO] pywinauto_mcp.tools.portmanteau_system: Successfully imported FastMCP app instance in portmanteau_system
+2026-06-14 17:53:40,902 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_system
+2026-06-14 17:53:40,905 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_mission
+2026-06-14 17:53:40,909 [INFO] pywinauto_mcp.tools: Successfully imported portmanteau_analyze
+2026-06-14 17:53:40,910 [INFO] pywinauto_mcp.tools.desktop_state: Successfully imported FastMCP app instance in desktop state tools
+2026-06-14 17:53:40,920 [INFO] pywinauto_mcp.tools.desktop_state: Successfully imported desktop state capture functionality and models
+2026-06-14 17:53:40,922 [INFO] pywinauto_mcp.tools: Successfully imported desktop_state
+2026-06-14 17:53:40,924 [INFO] pywinauto_mcp.tools: Successfully imported window_state
+2026-06-14 17:53:40,926 [INFO] pywinauto_mcp.tools: Successfully imported computer_use_compat
+2026-06-14 17:53:40,926 [INFO] pywinauto_mcp.main: Successfully imported portmanteau tools
+2026-06-14 17:53:40,933 [INFO] pywinauto_mcp.main: Successfully imported MCP prompts
+2026-06-14 17:53:40,933 [INFO] pywinauto_mcp.main: MCP server initialized successfully

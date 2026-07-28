@@ -6,12 +6,16 @@ import {
   Cpu,
   FlaskConical,
   Grid3x3,
+  List,
   Map as MapIcon,
   Microchip,
   TestTube2,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useConnection } from '../store/connection';
+import { useZoom } from '../hooks/useZoom';
+import { API_BASE } from '../lib/api';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: Activity },
@@ -23,11 +27,51 @@ const navItems = [
   { to: '/depot', label: 'Depot', icon: Boxes },
   { to: '/chiplab', label: 'ChipLab', icon: TestTube2 },
   { to: '/help', label: 'Help', icon: BookOpen },
+  { to: '/logs', label: 'Logs', icon: List },
   { to: '/status', label: 'Status', icon: Microchip },
 ];
 
+const BACKOFF = [1, 2, 4, 8, 16, 30];
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  useZoom();
   const [collapsed, setCollapsed] = useState(false);
+  const { state, lastError } = useConnection();
+  const attemptRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const tick = useCallback(async () => {
+    try {
+      const r = await fetch(`${API_BASE}/api/v1/health`, { signal: AbortSignal.timeout(5000) });
+      if (r.ok) { useConnection.setState({ state: "connected" }); attemptRef.current = 0; }
+      else useConnection.setState({ state: "offline", lastError: `HTTP ${r.status}` });
+    } catch (e) {
+      useConnection.setState({ state: "offline", lastError: (e as Error).message });
+    }
+    attemptRef.current = Math.min(++attemptRef.current, BACKOFF.length - 1);
+    timerRef.current = setTimeout(tick, BACKOFF[attemptRef.current] * 1000);
+  }, []);
+
+  useEffect(() => {
+    tick();
+    (async () => {
+      try {
+        const { listen } = await import("@tauri-apps/api/event");
+        const unlisten = await listen<string>("backend-status", (event) => {
+          if (event.payload === "ready") useConnection.setState({ state: "connected" });
+          else if (event.payload?.startsWith("error:")) useConnection.setState({ state: "error", lastError: event.payload });
+        });
+        return () => { unlisten(); clearTimeout(timerRef.current); };
+      } catch { return () => clearTimeout(timerRef.current); }
+    })();
+    return () => clearTimeout(timerRef.current);
+  }, [tick]);
+
+  const statusColor = state === "connected" ? "text-emerald-400" :
+    state === "connecting" ? "text-amber-400" : "text-red-400";
+
+  const statusLabel = state === "connected" ? "System Online" :
+    state === "connecting" ? "Connecting..." : `Offline${lastError ? ` (${lastError.slice(0, 60)})` : ""}`;
 
   return (
     <div className="flex h-screen">
@@ -65,7 +109,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
       </aside>
-      <main className="flex-1 overflow-auto p-6">{children}</main>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="h-11 flex items-center justify-end px-6 border-b border-gray-800 bg-gray-950 shrink-0">
+          <div className="flex items-center gap-2 text-xs">
+            <span data-testid="connection-status" className={`w-2 h-2 rounded-full ${statusColor} bg-current`} />
+            <span data-testid="connection-label" className={statusColor}>{statusLabel}</span>
+          </div>
+        </header>
+        <main className="flex-1 overflow-auto p-6">{children}</main>
+      </div>
     </div>
   );
 }
