@@ -12,7 +12,7 @@ $BinDir = Join-Path $RepoRoot 'bin'
 # Full open_pdks commit hash (volare rejects short ids like "0bbdd5"). See: volare ls-remote --pdk sky130
 $Sky130VolarePreferred = '7519dfb04400f224f140749cda44ee7de6f5e095'
 $Sky130VolareFallback = 'c6d73a35f524070e85faff4a6a9eef49553ebc2b'
-# Digital RTL2GDS (skip sky130_sram_macros on Windows — avoids WinError 32 temp-file lock)
+# Digital RTL2GDS (skip sky130_sram_macros on Windows - avoids WinError 32 temp-file lock)
 $Sky130VolareLibraries = @(
     'sky130_fd_io',
     'sky130_fd_pr',
