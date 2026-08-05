@@ -32,3 +32,7 @@ backend.err.log
 pycdc.exe
 .env
 .env.*
+
+# Runtime logs
+*.log
+
