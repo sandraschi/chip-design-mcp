@@ -13,6 +13,7 @@ const backendProxy = {
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: '0.0.0.0',
     allowedHosts: ['goliath'],
     port: 11023,
     proxy: backendProxy,

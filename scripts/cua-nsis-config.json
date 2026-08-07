@@ -1,13 +1,58 @@
 {
-    "product_name": "Chip Design MCP",
-    "install_dir": "%LOCALAPPDATA%\\Chip Design MCP",
-    "operator_exe": "chip-design-mcp-native.exe",
-    "backend_process_names": ["chip-design-mcp-native", "chip-design-mcp-native-backend"],
-    "backend_port": 11022,
-    "health_path": "/api/v1/health",
-    "diagnostics_path": "/api/v1/diagnostics",
-    "feature_smoke_path": "/api/v1/diagnostics",
-    "window_title_re": "Chip Design MCP",
-    "nsis_glob": "native/target/release/bundle/nsis/Chip Design MCP_*_x64-setup.exe",
-    "uninstall_registry_filter": "*Chip Design MCP*"
+  "product_name": "Chip Design MCP",
+  "install_dir": "%LOCALAPPDATA%\\Chip Design MCP",
+  "operator_exe": "chip-design-mcp-native.exe",
+  "backend_process_names": [
+    "chip-design-mcp-native",
+    "chip-design-mcp-native-backend"
+  ],
+  "backend_port": 11022,
+  "health_path": "/api/v1/health",
+  "diagnostics_path": "/api/v1/diagnostics",
+  "feature_smoke_path": "/api/v1/diagnostics",
+  "window_title_re": "Chip Design MCP",
+  "nsis_glob": "native/target/release/bundle/nsis/Chip Design MCP_*_x64-setup.exe",
+  "uninstall_registry_filter": "*Chip Design MCP*",
+  "nav_routes": [
+    [
+      "Dashboard",
+      "Dashboard"
+    ],
+    [
+      "Synthesis",
+      "Synthesis"
+    ],
+    [
+      "Simulation",
+      "Simulation"
+    ],
+    [
+      "Place & Route",
+      "Place & Route"
+    ],
+    [
+      "Verification",
+      "Verification"
+    ],
+    [
+      "Depot",
+      "Depot"
+    ],
+    [
+      "ChipLab",
+      "ChipLab"
+    ],
+    [
+      "Help",
+      "Help"
+    ],
+    [
+      "Logs",
+      "Logs"
+    ],
+    [
+      "Status",
+      "Status"
+    ]
+  ]
 }

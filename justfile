@@ -108,3 +108,5 @@ docker-check:
 
 pdk-check:
     uv run python -c "import os; print('PDK_ROOT=', os.environ.get('PDK_ROOT','(unset)'))"
+
+# Bootstrap: install dev deps + pre-commit hook
