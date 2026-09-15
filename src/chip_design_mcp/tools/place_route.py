@@ -9,6 +9,7 @@ Registered via register_place_route_tools(mcp, **deps) - called from server.py.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import shutil
@@ -80,7 +81,7 @@ def register_place_route_tools(
         src_dir = os.path.join(design_dir, "src")
         os.makedirs(src_dir, exist_ok=True)
         dest_v = os.path.join(src_dir, verilog_file)
-        shutil.copy2(src, dest_v)
+        await asyncio.to_thread(shutil.copy2, src, dest_v)
         pdk_name = _PDK_MAP.get(pdk, pdk)
         top = os.path.splitext(verilog_file)[0]
         config = {
@@ -299,7 +300,7 @@ def register_place_route_tools(
                 "data": None,
             }
         dest = os.path.join(output_dir, f"{design_name}.gds")
-        shutil.copy2(gds_src, dest)
+        await asyncio.to_thread(shutil.copy2, gds_src, dest)
         return {
             "success": True,
             "message": f"GDSII for '{design_name}' exported",
@@ -334,7 +335,7 @@ def register_place_route_tools(
         if not lef_src:
             return {"success": False, "message": "LEF file not found. Run may not have completed.", "data": None}
         dest = os.path.join(output_dir, f"{design_name}.lef")
-        shutil.copy2(lef_src, dest)
+        await asyncio.to_thread(shutil.copy2, lef_src, dest)
         return {
             "success": True,
             "message": f"LEF for '{design_name}' exported",
