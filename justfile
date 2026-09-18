@@ -15,9 +15,7 @@ default:
 # -- Lifecycle ----------------------------------------------------------------
 
 bootstrap:
-    uv sync --all-extras
-    Set-Location '{{justfile_directory()}}\webapp'
-    if (Get-Command bun -ErrorAction SilentlyContinue) { bun install } else { cmd /c npm install }
+    uv sync --all-extras; Set-Location '{{justfile_directory()}}\webapp'; if (Get-Command bun -ErrorAction SilentlyContinue) { bun install } else { cmd /c npm install }
 
 clean:
     if (Test-Path -Path "__pycache__") { Remove-Item -Recurse -Force "__pycache__" }; \
@@ -37,8 +35,7 @@ stdio:
     uv run python -m chip_design_mcp.server --mode stdio
 
 web:
-    Set-Location '{{justfile_directory()}}\webapp'
-    if (Get-Command bun -ErrorAction SilentlyContinue) { bun run dev } else { npm run dev }
+    Set-Location '{{justfile_directory()}}\webapp'; if (Get-Command bun -ErrorAction SilentlyContinue) { bun run dev } else { npm run dev }
 
 # -- Development --------------------------------------------------------------
 
@@ -48,17 +45,10 @@ dev port=PORT:
 # -- Quality ------------------------------------------------------------------
 
 lint:
-    uv run ruff check src tests
-    uv run ruff format --check src tests
-    Set-Location '{{justfile_directory()}}\webapp'
-    if (Get-Command bun -ErrorAction SilentlyContinue) { bun run lint } else { npx @biomejs/biome check src/ }
-    if (Get-Command bun -ErrorAction SilentlyContinue) { bunx tsc --noEmit } else { npx tsc --noEmit }
+    uv run ruff check src tests; uv run ruff format --check src tests; Set-Location '{{justfile_directory()}}\webapp'; if (Get-Command bun -ErrorAction SilentlyContinue) { bun run lint } else { npx @biomejs/biome check src/ }; if (Get-Command bun -ErrorAction SilentlyContinue) { bunx tsc --noEmit } else { npx tsc --noEmit }
 
 fix:
-    uv run ruff check src tests --fix
-    uv run ruff format src tests
-    Set-Location '{{justfile_directory()}}\webapp'
-    if (Get-Command bun -ErrorAction SilentlyContinue) { bun run format } else { npx @biomejs/biome check --write src/ }
+    uv run ruff check src tests --fix; uv run ruff format src tests; Set-Location '{{justfile_directory()}}\webapp'; if (Get-Command bun -ErrorAction SilentlyContinue) { bun run format } else { npx @biomejs/biome check --write src/ }
 
 check: lint test ty
 
@@ -75,9 +65,7 @@ build-native:
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{{justfile_directory()}}\native\build.ps1"
 
 build-native-debug:
-    Set-Location '{{justfile_directory()}}\native'
-    $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
-    npx @tauri-apps/cli build --debug
+    Set-Location '{{justfile_directory()}}\native'; $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"; npx @tauri-apps/cli build --debug
 
 # -- Testing ------------------------------------------------------------------
 
